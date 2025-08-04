@@ -160,3 +160,7 @@ cython_debug/
 #.idea/
 .~lock.MODELO FDS.docx#
 .vscode/launch.json
+src/Pictogram.png
+Section1.py
+Section1.docx
+.~lock.Section1.docx#

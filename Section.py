@@ -1,7 +1,7 @@
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Inches, Pt
-from docx.enum.table import WD_TABLE_ALIGNMENT
+from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ROW_HEIGHT_RULE
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 
@@ -38,18 +38,18 @@ def remove_lateral_borders(cell):
 
 def addTitle(Document,Titulo):
     sectionTitleTBL = Document.add_table(rows=1,cols=2)
+    sectionTitleTBL.columns[0].width = Inches(4.5)
+    sectionTitleTBL.rows[0].height_rule = WD_ROW_HEIGHT_RULE.EXACTLY
+    sectionTitleTBL.rows[0].height = Pt(18)
+    sectionTitleTBL.alignment = WD_TABLE_ALIGNMENT.CENTER
     sectionTitleCell = sectionTitleTBL.cell(0,0)
     sectionTitleCell.merge(sectionTitleTBL.cell(0,1))
     sectionTitleCell.paragraphs[0].text = Titulo
-    sectionTitleTBL.columns[0].width = Inches(4.5)
-    sectionTitleTBL.alignment = WD_TABLE_ALIGNMENT.CENTER
-    #sectionTitleTBL.style = 'Table Grid'
     remove_lateral_borders(sectionTitleCell)
     run_title = sectionTitleCell.paragraphs[0].runs[0]
     run_title.font.bold = True
     run_title.font.size = Pt(14)
     run_title.font.name = "Arial"
-
 
 def set_cell_background(cell, color_hex):
     tc = cell._tc
@@ -95,6 +95,8 @@ def addLine(Document,info,answer,color=False,Aligment='Center'):
 def addSubTitle(Document,Subtitle, Color = False):
     sectionSubTitleTBL = Document.add_table(rows=1,cols=2)
     sectionSubTitleTBL.alignment = WD_TABLE_ALIGNMENT.CENTER
+    sectionSubTitleTBL.rows[0].height_rule = WD_ROW_HEIGHT_RULE.EXACTLY
+    sectionSubTitleTBL.rows[0].height = Pt(16)
     sectionSubTitleCell = sectionSubTitleTBL.cell(0,0)
     sectionSubTitleTBL.columns[0].width = Inches(2.3)
     sectionSubTitleTBL.columns[1].width = Inches(5.2)
@@ -107,3 +109,32 @@ def addSubTitle(Document,Subtitle, Color = False):
     
     if Color == True:
         set_cell_background(sectionSubTitleCell,'d9d9d9')
+        
+def addPictogram(Document,PictoPath, Width, Height):
+    pictogramTBL = Document.add_table(rows=1,cols=1)
+    pictogramTBL.columns[0].width = Inches(7.5)
+    pictoCell =pictogramTBL.cell(0,0)
+    pictoP = pictoCell.paragraphs[0]
+    pictoP.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    pictoP.add_run().add_picture(PictoPath, width=Inches(Width), height=Inches(Height))
+        
+def add1Section(Document,ProductName,Uses,ProviderInfo,Emergency):
+    addTitle(Document,'1 - IDENTIFICAÇÃO')
+    addLine(Document,'Identificação do produto:',ProductName,True)
+    addLine(Document,'Usos recomendados:',Uses)
+    addLine(Document,'Detalhes do fornecedor:',ProviderInfo,True)
+    addLine(Document,'Número do telefone de emergência:',Emergency)
+
+def add2Section(Document,Classfication,ClassSystem,OtherDangerous,PictoPath,pictoWidth,pictoHeight,warningWord,warningPhrases,worryPhrases):
+    addTitle(Document,'2 - IDENTIFICAÇÃO DE PERIGOS')
+    addLine(Document,'Classificação da substância ou mistura:',Classfication,True)
+    addLine(Document,'Sistema de classificação utilizado:',ClassSystem)
+    addLine(Document,'Outros perigos que não resultam em uma classificação:',OtherDangerous,True)
+    addSubTitle(Document,'Elementos de rotulagem do GHS, incluindo frases de precaução')
+    addLine(Document,'Pictogramas:','',True)
+    addPictogram(Document,PictoPath,pictoWidth,pictoHeight)
+    addLine(Document,'Palavra de advertência:',warningWord,True)
+    addLine(Document,'Frases de perigo:',warningPhrases)
+    addLine(Document,'Frases de precaução:',worryPhrases,True)
+    
+    

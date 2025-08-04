@@ -171,7 +171,7 @@ def HeaderGen(document, title):
     RevCelltxt.runs[0].font.name = "Arial"
     RevCelltxt.alignment = WD_ALIGN_PARAGRAPH.CENTER
     
-    DataCelltxt = DataCell.add_paragraph('DATA: 28/07/2024')
+    DataCelltxt = DataCell.add_paragraph('''DATA:\n28/07/2024''')
     DataCelltxt.runs[0].font.bold = True
     DataCelltxt.runs[0].font.size = Pt(12)
     DataCelltxt.runs[0].font.name = "Arial"
@@ -183,6 +183,6 @@ def HeaderGen(document, title):
     PageCelltxt.runs[0].font.size = Pt(12)
     PageCelltxt.runs[0].font.name = "Arial"
     PageCelltxt.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    
+    header.add_paragraph('')
     
     return doc
