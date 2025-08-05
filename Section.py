@@ -118,14 +118,14 @@ def addPictogram(Document,PictoPath, Width, Height):
     pictoP.alignment = WD_ALIGN_PARAGRAPH.CENTER
     pictoP.add_run().add_picture(PictoPath, width=Inches(Width), height=Inches(Height))
         
-def add1Section(Document,ProductName,Uses,ProviderInfo,Emergency):
+def mkSec1(Document,ProductName,Uses,ProviderInfo,Emergency):
     addTitle(Document,'1 - IDENTIFICAÇÃO')
     addLine(Document,'Identificação do produto:',ProductName,True)
     addLine(Document,'Usos recomendados:',Uses)
     addLine(Document,'Detalhes do fornecedor:',ProviderInfo,True)
     addLine(Document,'Número do telefone de emergência:',Emergency)
 
-def add2Section(Document,Classfication,ClassSystem,OtherDangerous,PictoPath,pictoWidth,pictoHeight,warningWord,warningPhrases,worryPhrases):
+def mkSec2(Document,Classfication,ClassSystem,OtherDangerous,PictoPath,pictoWidth,pictoHeight,warningWord,warningPhrases,worryPhrases):
     addTitle(Document,'2 - IDENTIFICAÇÃO DE PERIGOS')
     addLine(Document,'Classificação da substância ou mistura:',Classfication,True)
     addLine(Document,'Sistema de classificação utilizado:',ClassSystem)
@@ -137,4 +137,108 @@ def add2Section(Document,Classfication,ClassSystem,OtherDangerous,PictoPath,pict
     addLine(Document,'Frases de perigo:',warningPhrases)
     addLine(Document,'Frases de precaução:',worryPhrases,True)
     
+def mkSec3(Document,subOrMix,chemID,synonym,cas,impure):
+    addTitle(Document,'3 - COMPOSIÇÃO E INFORMAÇÕES SOBRE OS INGREDIENTES')
+    addSubTitle(Document,subOrMix)
+    addLine(Document,'Identidade química:',chemID,True)
+    addLine(Document,'Sinônimo:',synonym)
+    addLine(Document,'Número de registro CAS:',cas,True)
+    addLine(Document,'Impurezas que contribuem para o perigo:',impure)
     
+def mkSec4(Document,inhalation,skin,eyes,intake,after,doctor):
+    addTitle(Document,'4 - MEDIDAS DE PRIMEIROS-SOCORROS')
+    addLine(Document,'Inalação:',inhalation,True)
+    addLine(Document,'Contato com a pele:',skin)
+    addLine(Document,'Contato com os olhos:',eyes,True)
+    addLine(Document,'Ingestão:',intake)
+    addLine(Document,'Sintomas e efeitos mais importantes, agudos ou tardios:',after,True)
+    addLine(Document,'Notas para o médico:',doctor)
+    
+def mkSec5(Document,extinction,EspDangerous,firefighters):
+    addTitle(Document,'5 - MEDIDAS DE COMBATE A INCÊNDIO')
+    addLine(Document,'Meios de extinção:',extinction,True)
+    addLine(Document,'Perigos específicos da mistura ou substância:',EspDangerous)
+    addLine(Document,'Medidas de proteção especiais para a equipe de combate a incêndio:',firefighters,True)
+
+def mkSec6(Document,NonEmergencyPP,EmergencyPP,environment,containmentClean):
+    addTitle(Document,'6 - MEDIDAS DE CONTROLE PARA DERRAMAMENTO OU VAZAMENTO')
+    addSubTitle(Document,'Precauções pessoais')
+    addLine(Document,'Para o pessoal que não faz parte dos serviços de emergência:',NonEmergencyPP,True)
+    addLine(Document,'Para pessoal de serviço de emergência:',EmergencyPP)
+    addLine(Document,'Precauções ao meio ambiente:',environment,True)
+    addLine(Document,'Métodos e materiais para contenção e limpeza:',containmentClean) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
