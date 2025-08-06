@@ -168,6 +168,52 @@ def mkSec6(Document,NonEmergencyPP,EmergencyPP,environment,containmentClean):
     addLine(Document,'Precauções ao meio ambiente:',environment,True)
     addLine(Document,'Métodos e materiais para contenção e limpeza:',containmentClean) 
 
+def mkSec7(Document,SafeHandling,hygiene,FireExplosion,adqCondition,adqPackage,idqPackage):
+    addTitle(Document,'7- MANUSEIO E ARMAZENAMENTO')
+    addSubTitle(Document,'Medidas técnicas apropriadas para o manuseio')
+    addLine(Document,'Precauções para manuseio seguro:',SafeHandling,True)
+    addLine(Document,'Medidas de higiene:',hygiene)
+    addSubTitle(Document,'Condições de armazenamento seguro, incluindo qualquer incompatibilidade')
+    addLine(Document,'Prevenção de incêndio e explosão:',FireExplosion,True)
+    addLine(Document,'Condições adequadas:',adqCondition)
+    addLine(Document,'Materiais adequados para embalagem:',adqPackage,True)
+    addLine(Document,'Materiais inadequados para embalagem:',idqPackage)
+
+def mkSec8(Document,exposure,biology,otherLimits,engineeringCtrl,eyesFace,skinBody,Breathing,Termic):
+    addTitle(Document,'8- CONTROLE DE EXPOSIÇÃO E PROTEÇÃO INDIVIDUAL')
+    addSubTitle(Document,'Parâmetros de controle')
+    addLine(Document,'Limites de exposição ocupacional:',exposure,True)
+    addLine(Document,'Indicadores biológicos:',biology)
+    addLine(Document,'Outros limites e valores:',otherLimits,True)
+    addLine(Document,'Medidas de controle de engenharia:', engineeringCtrl)
+    addSubTitle(Document,'Medidas de proteção pessoal')
+    addLine(Document,'Proteção dos olhos/face:',eyesFace,True)
+    addLine(Document,'Proteção da pele e do corpo:',skinBody)
+    addLine(Document,'Proteção respiratória:',Breathing,True)
+    addLine(Document,'Perigos térmicos:',Termic)
+
+def mkSec9(Document,physical_state,color,odor,melting_point,boiling_point,flammability,explosive_limit,flash_point,auto_ignition_temperature,
+           decomposition_temperature,pH,kinematic_viscosity,water_solubility,partition_coefficient,vapor_pressure,relative_density,relative_vapor_density,particle_characteristics,OtherInfo):
+    addTitle(Document,'9- PROPRIEDADES FÍSICAS E QUÍMICAS')
+    addLine(Document, 'Estado físico:', physical_state, True,Aligment='Start')
+    addLine(Document, 'Cor:', color,Aligment='Start')
+    addLine(Document, 'Odor e limite de odor:', odor, True,Aligment='Start')
+    addLine(Document, 'Ponto de fusão/ponto de congelamento:', melting_point,Aligment='Start')
+    addLine(Document, 'Ponto de ebulição ou ponto de ebulição inicial e faixa de ebulição:', boiling_point,True,Aligment='Start')
+    addLine(Document, 'Inflamabilidade (sólido; líquidos e gás):', flammability,Aligment='Start')
+    addLine(Document, 'Limite inferior/superior de inflamabilidade ou explosividade:', explosive_limit,True,Aligment='Start')
+    addLine(Document, 'Ponto de fulgor:', flash_point,Aligment='Start')
+    addLine(Document, 'Temperatura de autoignição:', auto_ignition_temperature,True,Aligment='Start')
+    addLine(Document, 'Temperatura de decomposição:', decomposition_temperature,Aligment='Start')
+    addLine(Document, 'pH:', pH,True,Aligment='Start')
+    addLine(Document, 'Viscosidade cinemática:', kinematic_viscosity,Aligment='Start')
+    addLine(Document, 'Solubilidade:', water_solubility,True,Aligment='Start')
+    addLine(Document, 'Coeficiente de partição - noctanol/água:', partition_coefficient,Aligment='Start')
+    addLine(Document, 'Pressão de vapor:', vapor_pressure,True,Aligment='Start')
+    addLine(Document, 'Densidade relativa:', relative_density,Aligment='Start')
+    addLine(Document, 'Densidade de vapor relativa:', relative_vapor_density,True,Aligment='Start')
+    addLine(Document, 'Características das partículas (sólidos):', particle_characteristics,Aligment='Start')
+    addLine(Document, 'Outras informações:', OtherInfo,True,Aligment='Start')
 
 
 
