@@ -308,6 +308,12 @@ def mkSec14(Document,terrestrial,
     addLine(Document,'Classe ou subclasse de risco subsidiário:', aereo_subsidiary_class)
     addLine(Document,'Grupo de embalagem:', aereo_packing_group,True)
 
+def mkSec15(Document):
+    legislacao = '''Decreto Federal nº 10.088, de 5 de novembro de 2019;
+Norma ABNT-NBR 14725;
+Norma Regulamentadora nº 26 (Sinalização de segurança), do Ministério do Trabalho e Emprego.'''
+    addTitle(Document,'15 - INFORMAÇÕES SOBRE REGULAMENTAÇÕES')
+    addLine(Document,'Regulamentações específicas para o produto químico:',legislacao,True)
 
 
 
