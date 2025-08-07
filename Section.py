@@ -215,17 +215,98 @@ def mkSec9(Document,physical_state,color,odor,melting_point,boiling_point,flamma
     addLine(Document, 'Características das partículas (sólidos):', particle_characteristics,Aligment='Start')
     addLine(Document, 'Outras informações:', OtherInfo,True,Aligment='Start')
 
+def mkSec10(Document,Stability,reactivity,possibility_of_dangerous_reactions,
+conditions_to_avoid,incompatible_materials,hazardous_decomposition_products):
+    addTitle(Document,'10 - ESTABILIDADE E REATIVIDADE')
+    addLine(Document,'Estabilidade:',Stability,True)
+    addLine(Document,'Reatividade:',reactivity)
+    addLine(Document,'Possibilidade de reações perigosas:',possibility_of_dangerous_reactions,True)
+    addLine(Document,'Condições a serem evitadas:',conditions_to_avoid)
+    addLine(Document,'Materiais incompatíveis:',incompatible_materials,True)
+    addLine(Document,'Produtos perigosos da decomposição:',hazardous_decomposition_products)
 
 
 
+def mksec11(Document,acute_toxicity,skin_corrosion_irritation,serious_eye_damage_eye_irritation,
+respiratory_skin_sensitization,germ_cell_mutagenicity,carcinogenicity,reproductive_toxicity,
+stot_single_exposure,stot_repeated_exposure,aspiration_hazard):
+    addTitle(Document,'11 - INFORMAÇÕES TOXICOLÓGICAS')
+    addLine(Document,'Toxicidade aguda:',acute_toxicity,True)
+    addLine(Document,'Corrosão/irritação à pele:',skin_corrosion_irritation)
+    addLine(Document,'Lesões oculares graves/irritação ocular:',serious_eye_damage_eye_irritation,True)
+    addLine(Document,'Sensibilização respiratória ou à pele:',respiratory_skin_sensitization)
+    addLine(Document,'Mutagenicidade em células germinativas:',germ_cell_mutagenicity,True)
+    addLine(Document,'Carcinogenicidade:',carcinogenicity)
+    addLine(Document,'Toxicidade à reprodução:',reproductive_toxicity,True)
+    addLine(Document,'Toxicidade para órgãos-alvo específicos - exposição única:',stot_single_exposure)
+    addLine(Document,'Toxicidade para órgãos-alvo específicos - exposição repetida:',stot_repeated_exposure,True)
+    addLine(Document,'Perigo por aspiração:',aspiration_hazard)
 
 
+def mkSec12(Document,ecotoxicity,persistence_degradability,bioaccumulation_potential,
+soil_mobility,other_adverse_effects):
+    addTitle(Document,'12 - INFORMAÇÕES ECOLÓGICAS')
+    addSubTitle(Document,'Efeitos ambientais, comportamento e impactos do produto')
+    addLine(Document,'Ecotoxicidade:',ecotoxicity,True)
+    addLine(Document,'Persistência e degradabilidade:',persistence_degradability)
+    addLine(Document,'Potencial bioacumulativo:',bioaccumulation_potential,True)
+    addLine(Document,'Mobilidade no solo:',soil_mobility)
+    addLine(Document,'Outros efeitos adversos:',other_adverse_effects,True)
 
 
+def mkSec13(Document,product_treatment,product_leftovers,used_packaging):
+    addTitle(Document,'13- CONSIDERAÇÕES SOBRE DESTINAÇÃO FINAL')
+    addSubTitle(Document,'Métodos recomendados para destinação final')
+    addLine(Document,'Produto:',product_treatment,True)
+    addLine(Document,'Restos de produtos:',product_leftovers)
+    addLine(Document,'Embalagem usada:',used_packaging,True)
 
+def mkSec14(Document,terrestrial,
+            terrestrial_ONU,
+            terrestrial_shipping_name,
+            terrestrial_primary_class,
+            terrestrial_subsidiary_class,
+            terrestrial_risk_number,
+            terrestrial_packing_group,
+            hydroviario,
+            hydroviario_ONU,
+            hydroviario_shipping_name,
+            hydroviario_primary_class,
+            hydroviario_subsidiary_class,
+            hydroviario_packing_group,
+            hydroviario_ems,
+            hydroviario_marine_pollutant,
+            aereo,
+            aereo_ONU,
+            aereo_shipping_name,
+            aereo_primary_class,
+            aereo_subsidiary_class,
+            aereo_packing_group):
+    addTitle(Document,'14 - INFORMAÇÕES SOBRE TRANSPORTE')
+    addSubTitle(Document,'Regulamentações nacionais e internacionais')
+    addLine(Document,'Terrestre:',terrestrial,True)
+    addLine(Document,'Número ONU:',terrestrial_ONU)
+    addLine(Document,'Nome apropriado para embarque:',terrestrial_shipping_name,True)
+    addLine(Document,'Classe ou subclasse de risco principal:',terrestrial_primary_class)
+    addLine(Document,'Classe ou subclasse de risco subsidiário:',terrestrial_subsidiary_class,True)
+    addLine(Document,'Número de risco:',terrestrial_risk_number)
+    addLine(Document,'Grupo de embalagem:',terrestrial_packing_group,True)
 
+    addLine(Document,'Hidroviário:', hydroviario)
+    addLine(Document,'Número ONU:', hydroviario_ONU,True)
+    addLine(Document,'Nome apropriado para embarque:', hydroviario_shipping_name)
+    addLine(Document,'Classe ou subclasse de risco principal:', hydroviario_primary_class,True)
+    addLine(Document,'Classe ou subclasse de risco subsidiário:', hydroviario_subsidiary_class)
+    addLine(Document,'Grupo de embalagem:', hydroviario_packing_group,True)
+    addLine(Document,'EmS:', hydroviario_ems)
+    addLine(Document,'Poluente marinho:', hydroviario_marine_pollutant,True)
 
-
+    addLine(Document,'Aéreo:', aereo)
+    addLine(Document,'Número ONU:', aereo_ONU,True)
+    addLine(Document,'Nome apropriado para embarque:', aereo_shipping_name)
+    addLine(Document,'Classe ou subclasse de risco principal:', aereo_primary_class,True)
+    addLine(Document,'Classe ou subclasse de risco subsidiário:', aereo_subsidiary_class)
+    addLine(Document,'Grupo de embalagem:', aereo_packing_group,True)
 
 
 
