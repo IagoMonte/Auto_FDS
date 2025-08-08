@@ -1,7 +1,8 @@
+from docx import Document
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Inches, Pt
-from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ROW_HEIGHT_RULE
+from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ROW_HEIGHT_RULE,WD_ALIGN_VERTICAL
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 
@@ -225,8 +226,6 @@ conditions_to_avoid,incompatible_materials,hazardous_decomposition_products):
     addLine(Document,'Materiais incompatíveis:',incompatible_materials,True)
     addLine(Document,'Produtos perigosos da decomposição:',hazardous_decomposition_products)
 
-
-
 def mksec11(Document,acute_toxicity,skin_corrosion_irritation,serious_eye_damage_eye_irritation,
 respiratory_skin_sensitization,germ_cell_mutagenicity,carcinogenicity,reproductive_toxicity,
 stot_single_exposure,stot_repeated_exposure,aspiration_hazard):
@@ -242,7 +241,6 @@ stot_single_exposure,stot_repeated_exposure,aspiration_hazard):
     addLine(Document,'Toxicidade para órgãos-alvo específicos - exposição repetida:',stot_repeated_exposure,True)
     addLine(Document,'Perigo por aspiração:',aspiration_hazard)
 
-
 def mkSec12(Document,ecotoxicity,persistence_degradability,bioaccumulation_potential,
 soil_mobility,other_adverse_effects):
     addTitle(Document,'12 - INFORMAÇÕES ECOLÓGICAS')
@@ -252,7 +250,6 @@ soil_mobility,other_adverse_effects):
     addLine(Document,'Potencial bioacumulativo:',bioaccumulation_potential,True)
     addLine(Document,'Mobilidade no solo:',soil_mobility)
     addLine(Document,'Outros efeitos adversos:',other_adverse_effects,True)
-
 
 def mkSec13(Document,product_treatment,product_leftovers,used_packaging):
     addTitle(Document,'13- CONSIDERAÇÕES SOBRE DESTINAÇÃO FINAL')
@@ -315,14 +312,92 @@ Norma Regulamentadora nº 26 (Sinalização de segurança), do Ministério do Tr
     addTitle(Document,'15 - INFORMAÇÕES SOBRE REGULAMENTAÇÕES')
     addLine(Document,'Regulamentações específicas para o produto químico:',legislacao,True)
 
+def addVersionControl(Document,Version,Date,Info):
+    VCLine = Document.add_table(1,1)
+    VCLine.alignment = WD_TABLE_ALIGNMENT.CENTER
+    VCLine.columns[0].width = Inches(7.5)
+    VCLine.rows[0].height_rule = WD_ROW_HEIGHT_RULE.EXACTLY
+    VCLine.rows[0].height = Pt(132)
+    VCLine.cell(0,0).vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+
+    VcTbl = VCLine.cell(0,0).add_table(2,3)
+    VcTbl.alignment = WD_TABLE_ALIGNMENT.CENTER
+    VcTbl.columns[0].width = Inches(2.33)
+    VcTbl.columns[1].width = Inches(2.33)
+    VcTbl.columns[2].width = Inches(2.33)
+    VcTbl.rows[0].height_rule = WD_ROW_HEIGHT_RULE.EXACTLY
+    VcTbl.rows[0].height = Pt(18)
+    VcTbl.rows[1].height_rule = WD_ROW_HEIGHT_RULE.EXACTLY
+    VcTbl.rows[1].height = Pt(45)
+    
+    
+    Vc_Version = VcTbl.cell(0,0)
+    Vc_Date = VcTbl.cell(0,1)
+    Vc_Info = VcTbl.cell(0,2)
 
 
+    Vc_Version.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+    Vc_Date.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+    Vc_Info.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+    
+    Vc_Version_p = Vc_Version.paragraphs[0]
+    Vc_Date_p = Vc_Date.paragraphs[0]
+    Vc_Info_p = Vc_Info.paragraphs[0]
+    
+    Vc_Version_p.text = 'Versão'
+    Vc_Date_p.text = 'Data de elaboração'
+    Vc_Info_p.text = 'Alterações'
+    
+    
+    Vc_Version_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    Vc_Date_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    Vc_Info_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
 
+    Vc_Version_p.runs[0].font.size = Pt(12)
+    Vc_Date_p.runs[0].font.size = Pt(12)
+    Vc_Info_p.runs[0].font.size = Pt(12)
+    
+    Vc_Version_p.runs[0].font.name = 'Arial'
+    Vc_Date_p.runs[0].font.name = 'Arial'
+    Vc_Info_p.runs[0].font.name = 'Arial'
+    
+    
+    
+    
+    VcRes_Version = VcTbl.cell(1,0)
+    VcRes_Date = VcTbl.cell(1,1)
+    VcRes_Info = VcTbl.cell(1,2)
+    
+    VcRes_Version.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+    VcRes_Date.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+    VcRes_Info.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+    
+    VcRes_Version_p = VcRes_Version.paragraphs[0]
+    VcRes_Date_p = VcRes_Date.paragraphs[0]
+    vcRes_info_p = VcRes_Info.paragraphs[0]
+
+    VcRes_Version_p.text = Version
+    VcRes_Date_p.text = Date
+    vcRes_info_p.text = Info        
+    
+    
+    
+    
+    VcRes_Version_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    VcRes_Date_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    vcRes_info_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
 
-
-
+    VcRes_Version_p.runs[0].font.size = Pt(12)
+    VcRes_Date_p.runs[0].font.size = Pt(12)
+    vcRes_info_p.runs[0].font.size = Pt(12)
+    
+    VcRes_Version_p.runs[0].font.name = 'Arial'
+    VcRes_Date_p.runs[0].font.name = 'Arial'
+    vcRes_info_p.runs[0].font.name = 'Arial'
+    
+    
 
 
 
