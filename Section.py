@@ -5,6 +5,90 @@ from docx.shared import Inches, Pt
 from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ROW_HEIGHT_RULE,WD_ALIGN_VERTICAL
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 
+def addVersionControl(Document,Version,Date,Info):
+    VCLine = Document.add_table(1,1)
+    VCLine.alignment = WD_TABLE_ALIGNMENT.CENTER
+    VCLine.columns[0].width = Inches(7.5)
+    VCLine.rows[0].height_rule = WD_ROW_HEIGHT_RULE.EXACTLY
+    VCLine.rows[0].height = Pt(132)
+    VCLine.cell(0,0).vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+
+    VcTbl = VCLine.cell(0,0).add_table(2,3)
+    VcTbl.alignment = WD_TABLE_ALIGNMENT.CENTER
+    VcTbl.columns[0].width = Inches(2.33)
+    VcTbl.columns[1].width = Inches(2.33)
+    VcTbl.columns[2].width = Inches(2.33)
+    VcTbl.rows[0].height_rule = WD_ROW_HEIGHT_RULE.EXACTLY
+    VcTbl.rows[0].height = Pt(18)
+    VcTbl.rows[1].height_rule = WD_ROW_HEIGHT_RULE.EXACTLY
+    VcTbl.rows[1].height = Pt(45)
+    
+    
+    Vc_Version = VcTbl.cell(0,0)
+    Vc_Date = VcTbl.cell(0,1)
+    Vc_Info = VcTbl.cell(0,2)
+
+
+    Vc_Version.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+    Vc_Date.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+    Vc_Info.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+    
+    Vc_Version_p = Vc_Version.paragraphs[0]
+    Vc_Date_p = Vc_Date.paragraphs[0]
+    Vc_Info_p = Vc_Info.paragraphs[0]
+    
+    Vc_Version_p.text = 'Versão'
+    Vc_Date_p.text = 'Data de elaboração'
+    Vc_Info_p.text = 'Alterações'
+    
+    
+    Vc_Version_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    Vc_Date_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    Vc_Info_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+
+    Vc_Version_p.runs[0].font.size = Pt(12)
+    Vc_Date_p.runs[0].font.size = Pt(12)
+    Vc_Info_p.runs[0].font.size = Pt(12)
+    
+    Vc_Version_p.runs[0].font.name = 'Arial'
+    Vc_Date_p.runs[0].font.name = 'Arial'
+    Vc_Info_p.runs[0].font.name = 'Arial'
+    
+    
+    
+    
+    VcRes_Version = VcTbl.cell(1,0)
+    VcRes_Date = VcTbl.cell(1,1)
+    VcRes_Info = VcTbl.cell(1,2)
+    
+    VcRes_Version.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+    VcRes_Date.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+    VcRes_Info.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+    
+    VcRes_Version_p = VcRes_Version.paragraphs[0]
+    VcRes_Date_p = VcRes_Date.paragraphs[0]
+    vcRes_info_p = VcRes_Info.paragraphs[0]
+
+    VcRes_Version_p.text = Version
+    VcRes_Date_p.text = Date
+    vcRes_info_p.text = Info        
+    
+    
+    
+    
+    VcRes_Version_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    VcRes_Date_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    vcRes_info_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+
+    VcRes_Version_p.runs[0].font.size = Pt(12)
+    VcRes_Date_p.runs[0].font.size = Pt(12)
+    vcRes_info_p.runs[0].font.size = Pt(12)
+    
+    VcRes_Version_p.runs[0].font.name = 'Arial'
+    VcRes_Date_p.runs[0].font.name = 'Arial'
+    vcRes_info_p.runs[0].font.name = 'Arial'
 
 def remove_lateral_borders(cell):
     tc = cell._tc
@@ -92,6 +176,11 @@ def addLine(Document,info,answer,color=False,Aligment='Center'):
     if color==True:
         set_cell_background(sectionLineCellI,'d9d9d9')
         set_cell_background(sectionLineCellQ,'d9d9d9')
+    
+    
+    if answer == '':
+        sectionLineCellQ.merge(sectionLineCellI)
+
 
 def addSubTitle(Document,Subtitle, Color = False):
     sectionSubTitleTBL = Document.add_table(rows=1,cols=2)
@@ -305,101 +394,21 @@ def mkSec14(Document,terrestrial,
     addLine(Document,'Classe ou subclasse de risco subsidiário:', aereo_subsidiary_class)
     addLine(Document,'Grupo de embalagem:', aereo_packing_group,True)
 
-def mkSec15(Document):
-    legislacao = '''Decreto Federal nº 10.088, de 5 de novembro de 2019;
-Norma ABNT-NBR 14725;
-Norma Regulamentadora nº 26 (Sinalização de segurança), do Ministério do Trabalho e Emprego.'''
+def mkSec15(Document,legislacao):
     addTitle(Document,'15 - INFORMAÇÕES SOBRE REGULAMENTAÇÕES')
     addLine(Document,'Regulamentações específicas para o produto químico:',legislacao,True)
 
-def addVersionControl(Document,Version,Date,Info):
-    VCLine = Document.add_table(1,1)
-    VCLine.alignment = WD_TABLE_ALIGNMENT.CENTER
-    VCLine.columns[0].width = Inches(7.5)
-    VCLine.rows[0].height_rule = WD_ROW_HEIGHT_RULE.EXACTLY
-    VCLine.rows[0].height = Pt(132)
-    VCLine.cell(0,0).vertical_alignment = WD_ALIGN_VERTICAL.CENTER
 
-    VcTbl = VCLine.cell(0,0).add_table(2,3)
-    VcTbl.alignment = WD_TABLE_ALIGNMENT.CENTER
-    VcTbl.columns[0].width = Inches(2.33)
-    VcTbl.columns[1].width = Inches(2.33)
-    VcTbl.columns[2].width = Inches(2.33)
-    VcTbl.rows[0].height_rule = WD_ROW_HEIGHT_RULE.EXACTLY
-    VcTbl.rows[0].height = Pt(18)
-    VcTbl.rows[1].height_rule = WD_ROW_HEIGHT_RULE.EXACTLY
-    VcTbl.rows[1].height = Pt(45)
-    
-    
-    Vc_Version = VcTbl.cell(0,0)
-    Vc_Date = VcTbl.cell(0,1)
-    Vc_Info = VcTbl.cell(0,2)
-
-
-    Vc_Version.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-    Vc_Date.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-    Vc_Info.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-    
-    Vc_Version_p = Vc_Version.paragraphs[0]
-    Vc_Date_p = Vc_Date.paragraphs[0]
-    Vc_Info_p = Vc_Info.paragraphs[0]
-    
-    Vc_Version_p.text = 'Versão'
-    Vc_Date_p.text = 'Data de elaboração'
-    Vc_Info_p.text = 'Alterações'
-    
-    
-    Vc_Version_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    Vc_Date_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    Vc_Info_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-
-
-    Vc_Version_p.runs[0].font.size = Pt(12)
-    Vc_Date_p.runs[0].font.size = Pt(12)
-    Vc_Info_p.runs[0].font.size = Pt(12)
-    
-    Vc_Version_p.runs[0].font.name = 'Arial'
-    Vc_Date_p.runs[0].font.name = 'Arial'
-    Vc_Info_p.runs[0].font.name = 'Arial'
-    
-    
-    
-    
-    VcRes_Version = VcTbl.cell(1,0)
-    VcRes_Date = VcTbl.cell(1,1)
-    VcRes_Info = VcTbl.cell(1,2)
-    
-    VcRes_Version.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-    VcRes_Date.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-    VcRes_Info.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-    
-    VcRes_Version_p = VcRes_Version.paragraphs[0]
-    VcRes_Date_p = VcRes_Date.paragraphs[0]
-    vcRes_info_p = VcRes_Info.paragraphs[0]
-
-    VcRes_Version_p.text = Version
-    VcRes_Date_p.text = Date
-    vcRes_info_p.text = Info        
-    
-    
-    
-    
-    VcRes_Version_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    VcRes_Date_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    vcRes_info_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-
-
-    VcRes_Version_p.runs[0].font.size = Pt(12)
-    VcRes_Date_p.runs[0].font.size = Pt(12)
-    vcRes_info_p.runs[0].font.size = Pt(12)
-    
-    VcRes_Version_p.runs[0].font.name = 'Arial'
-    VcRes_Date_p.runs[0].font.name = 'Arial'
-    vcRes_info_p.runs[0].font.name = 'Arial'
-    
-    
-
-
+def mkSec16(Document,disclaimer,subs,refs):
+    addTitle(Document,'16 - OUTRAS INFORMAÇÕES')
+    addSubTitle(Document,'Informações importantes, mas não especificamente descritas às seções anteriores.')
+    addLine(Document,disclaimer,'',True)
+    addSubTitle(Document,'Controle de alterações:')
+    addVersionControl(Document,'01','28/07/2025','Alteração da seção: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 e 16.')
+    addSubTitle(Document,'Legendas e abreviaturas:')
+    addLine(Document,subs,'',True, Aligment='Start')
+    addSubTitle(Document,'Referências bibliográficas:')
+    addLine(Document,refs,'',True, Aligment='Start')
 
 
 

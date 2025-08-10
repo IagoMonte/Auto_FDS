@@ -105,12 +105,11 @@ def HeaderGen(document, title):
     Headertbl.columns[1].width = Inches(0.1)
     Headertbl.columns[2].width = Inches(3)
     Headertbl.columns[3].width = Inches(0.1)
-    Headertbl.columns[4].width = Inches(2)  
+    Headertbl.columns[4].width = Inches(2.3)  
 
     Headertbl.cell(0,1).merge(Headertbl.cell(1,1))# space1
     Headertbl.cell(0,1).merge(Headertbl.cell(2,1))# space1
     Headertbl.cell(0,1).merge(Headertbl.cell(3,1))# space1
-    remove_cell_borders(Headertbl.cell(3,1))
 
 
     Headertbl.cell(0,2).merge(Headertbl.cell(1,2))# Title
@@ -120,7 +119,6 @@ def HeaderGen(document, title):
     Headertbl.cell(0,3).merge(Headertbl.cell(1,3))# space2
     Headertbl.cell(0,3).merge(Headertbl.cell(2,3))# space2
     Headertbl.cell(0,3).merge(Headertbl.cell(3,3))# space2
-    remove_cell_borders(Headertbl.cell(3,3))
 
     cell_logo = Headertbl.cell(0, 0)
     cell_logo.merge(Headertbl.cell(1,0))

@@ -1,7 +1,7 @@
 from Header import HeaderGen
 from docx import Document
 
-nome_produto = "Ácido Nítricoasihdgaifdaj lfgdipyafdjagdyiafsdjg adihafdkjagsodu"
+nome_produto = "Ácido Nítrico"
 
 doc = HeaderGen(Document(),nome_produto)
 
