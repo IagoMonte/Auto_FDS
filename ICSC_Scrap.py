@@ -1,7 +1,5 @@
 import requests as rq
-from bs4 import BeautifulSoup as bs, Tag, Comment
-from bs4.element import NavigableString
-from lxml import html
+from bs4 import BeautifulSoup as bs
 
 
 def getUrlByCAS(CasNumber: str) -> str:
