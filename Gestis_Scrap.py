@@ -4,8 +4,11 @@ from bs4 import BeautifulSoup as bs
 def getGestisUrlByCas(CAS):
     res = rq.get(f'https://gestis-api.dguv.de/api/search/en?stoffname=&nummern={CAS}&summenformel=&volltextsuche=&branche=&risikogruppe=&kategorie=&anmerkung=&erweitert=false&exact=false')
 
-    return res.json()[0]['zvg_nr']
-
+    try:    
+        return res.json()[0]['zvg_nr']
+    except:
+        print('Cas not found in Gestis Data Base')
+        return []
 def clean_html(html_str):
     if not isinstance(html_str, str):
         return html_str

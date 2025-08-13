@@ -11,14 +11,18 @@ def getUrlByCAS(CasNumber: str) -> str:
 
     return docURL
 
-icscUrl = getUrlByCAS('7664-93-9')
+def getDataByCas(Cas: str):
+    
+    icscUrl = getUrlByCAS('7664-93-9')
 
-resIcsc = rq.get(icscUrl)
+    resIcsc = rq.get(icscUrl)
 
-icscSoup = bs(resIcsc.content, 'html.parser')
+    icscSoup = bs(resIcsc.content, 'html.parser')
 
-b_list = icscSoup.select('b')
-p_list = icscSoup.select('p')
-td_list = icscSoup.select('td')
+    data = {
+        "b_list": icscSoup.select('b'),
+        "p_list": icscSoup.select('p'),
+        "td_list": icscSoup.select('td')
+    }
 
-pass
+    return data

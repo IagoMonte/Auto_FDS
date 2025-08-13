@@ -1,4 +1,6 @@
 import requests as rq
+from bs4 import BeautifulSoup as bs
+from lxml import html
 
 def getCetesbByCas(Cas: str):
     res = rq.get('https://produtosquimicos.cetesb.sp.gov.br/Ficha/_Produtos')
@@ -12,9 +14,13 @@ def getCetesbByCas(Cas: str):
 
 CetesbUrl = f'https://produtosquimicos.cetesb.sp.gov.br/ficha/produto/{getCetesbByCas('7664-93-9')}'
 
-CetesbData = rq.get(CetesbUrl)
+CetesbRes = rq.get(CetesbUrl)
+
+
+CetesbSoup = bs(CetesbRes.content, 'html.parser')
 
 
 
 
+pass
 
