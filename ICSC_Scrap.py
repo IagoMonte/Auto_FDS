@@ -13,7 +13,7 @@ def getUrlByCAS(CasNumber: str) -> str:
 
 def getDataByCas(Cas: str):
     
-    icscUrl = getUrlByCAS('7664-93-9')
+    icscUrl = getUrlByCAS(Cas)
 
     resIcsc = rq.get(icscUrl)
 

@@ -1,7 +1,7 @@
 from re import A
 from Header import HeaderGen
 from docx import Document
-from Section import addLine,addSubTitle,addTitle,addPictogram, addVersionControl, mkSec1, mkSec10, mkSec12, mkSec13, mkSec14, mkSec15, mkSec16, mkSec2, mkSec3, mkSec4, mkSec5, mkSec6, mkSec7, mkSec8, mkSec9, mksec11
+from Section import mkSec1, mkSec10, mkSec12, mkSec13, mkSec14, mkSec15, mkSec16, mkSec2, mkSec3, mkSec4, mkSec5, mkSec6, mkSec7, mkSec8, mkSec9, mksec11
 
 doc = HeaderGen(Document(),'Ácido Sulfúrico')
 
