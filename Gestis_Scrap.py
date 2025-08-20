@@ -39,7 +39,7 @@ def organize_by_chapter(clean_data):
         chapters[title_clean] = chapter_content
     return chapters
 
-def dataGestisByCas(cas_Number: str):
+def getDataByCas(cas_Number: str):
     gestisDataUrl = f'https://gestis-api.dguv.de/api/article/en/{getGestisUrlByCas(cas_Number)}' 
     headers = {'Authorization': 'Bearer dddiiasjhduuvnnasdkkwUUSHhjaPPKMasd'}
 
