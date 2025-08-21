@@ -1,7 +1,9 @@
 import re
 from main import getData, translate
 from Header import HeaderGen
-
+from pictograms import class_to_pictograms
+from docx import Document
+from Section import mkSec2,mkSec1
 data = getData('7664-93-9')
 
 ProductName = 'Não disponível'
@@ -82,9 +84,18 @@ if data['cetesb'] != []:
 
 ClassSystem = '''Norma ABNT-NBR 14725-2023.\nSistema Globalmente Harmonizado para a Classificação e Rotulagem de Produtos Químicos, ONU.'''
 OtherDangerous = '''Não são conhecidos outros perigos do produto.'''
+PictoPath = class_to_pictograms(Classfication)
+pictoWidth = 4 #inches
+pictoHeight = 2 #inches
 
-print(Classfication)
-#if icsc
-#if gestis
-#if cetesb
+warningWord = 'Não disponível'
+warningPhrases = 'Não disponível'
+worryPhrases ='Não disponível'
 
+
+doc = HeaderGen(Document(),ProductName)
+mkSec1(doc,ProductName,Uses,ProviderInfo,Emergency)
+mkSec2(doc,Classfication,ClassSystem,OtherDangerous,PictoPath,pictoWidth,pictoHeight,warningWord,warningPhrases,worryPhrases)
+
+nome_arquivo = f'FDS_{ProductName.replace(" ", "_")}.docx'
+doc.save(nome_arquivo)

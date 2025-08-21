@@ -1,7 +1,7 @@
 from PIL import Image
 import os
 
-def mergepictograns(pictogram_paths, spacing=10, bg_color=(255, 255, 255)):
+def mergepictograns(pictogram_paths, output_path="./Pictos/Output.png", spacing=10, bg_color=(255, 255, 255)):
     imagens = [Image.open(p).convert("RGBA") for p in pictogram_paths]
 
     larguras = [img.width for img in imagens]
@@ -17,7 +17,10 @@ def mergepictograns(pictogram_paths, spacing=10, bg_color=(255, 255, 255)):
         final.paste(img, (x, (altura_max - img.height)//2), mask=img)
         x += img.width + spacing
 
-    return final
+    # salva no disco e retorna o path
+    final.save(output_path)
+    return output_path
+
 
 def class_to_pictograms(classifications: str):
     mapping = {
@@ -81,14 +84,13 @@ def class_to_pictograms(classifications: str):
         for ghs, rules in mapping.items():
             for hazard, categories in rules:
                 if hazard.lower() in line.lower():
-                    # Se não tiver categorias, vale sempre
                     if not categories:
                         pictograms.add(ghs)
                     else:
                         for cat in categories:
                             if f"Categoria {cat}" in line or f"- {cat}" in line:
                                 pictograms.add(ghs)
-    
-    result = {ghs: os.path.join('./Pictos', f"{ghs}.png") for ghs in sorted(pictograms)}
 
-    return mergepictograns(result)
+    paths = [os.path.join('./Pictos', f"{ghs}.png") for ghs in sorted(pictograms)]
+    return mergepictograns(paths, output_path="./Pictos/pictogramas_combinados.png")
+
