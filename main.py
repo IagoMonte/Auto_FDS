@@ -23,8 +23,6 @@ def getData(Cas : str):
             'gestis': gestisData}
     return data
 
-Cas = '7664-93-9'
-
 if __file__ == 'main':
     nome_produto = "Ácido Nítrico"
 
