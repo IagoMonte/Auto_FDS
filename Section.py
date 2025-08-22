@@ -206,7 +206,13 @@ def addPictogram(Document,PictoPath, Width, Height):
     pictoCell =pictogramTBL.cell(0,0)
     pictoP = pictoCell.paragraphs[0]
     pictoP.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    pictoP.add_run().add_picture(PictoPath, width=Inches(Width), height=Inches(Height))
+    if PictoPath != None:
+        pictoP.add_run().add_picture(PictoPath, width=Inches(Width), height=Inches(Height))
+    else:
+        pictoP.text = "Não disponivel"
+        run_title = pictoP.runs[0]
+        run_title.font.size = Pt(12)
+        run_title.font.name = "Arial"
         
 def mkSec1(Document,ProductName,Uses,ProviderInfo,Emergency):
     addTitle(Document,'1 - IDENTIFICAÇÃO')

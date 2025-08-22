@@ -101,11 +101,11 @@ def HeaderGen(document, title):
     Headertbl.style = 'Table Grid'
     Headertbl.alignment = WD_TABLE_ALIGNMENT.CENTER
 
-    Headertbl.columns[0].width = Inches(2.3)
+    Headertbl.columns[0].width = Inches(2.2)
     Headertbl.columns[1].width = Inches(0.1)
     Headertbl.columns[2].width = Inches(3)
     Headertbl.columns[3].width = Inches(0.1)
-    Headertbl.columns[4].width = Inches(2.3)  
+    Headertbl.columns[4].width = Inches(2.1)  
 
     Headertbl.cell(0,1).merge(Headertbl.cell(1,1))# space1
     Headertbl.cell(0,1).merge(Headertbl.cell(2,1))# space1

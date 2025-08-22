@@ -89,8 +89,12 @@ pictoWidth = 4 #inches
 pictoHeight = 2 #inches
 
 warningWord = 'Não disponível'
+
+
 warningPhrases = 'Não disponível'
 worryPhrases ='Não disponível'
+
+
 
 
 doc = HeaderGen(Document(),ProductName)
