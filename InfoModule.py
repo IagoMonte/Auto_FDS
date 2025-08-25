@@ -90,12 +90,51 @@ pictoHeight = 2 #inches
 
 warningWord = 'Não disponível'
 
+if data['gestis']:
+    text = re.search(r'Signal Word\s*"?(\w+)"?', data['gestis']['REGULATIONS'][0]['text'])
+    if text:
+        text = text.group(1)
+        warningWord = translate(text)
+
+if data['cetesb']:
+    text = re.search(r'Palavra de advertência(\w+)', data['cetesb'][3][2][0])
+    if text:
+        text = text.group(1)
+        warningWord = text
 
 warningPhrases = 'Não disponível'
+if data['gestis']:
+    h_phrases = re.split(r'H-phrases', data['gestis']['REGULATIONS'][0]['text'], maxsplit=1)
+    if len(h_phrases) > 2:
+        phrases = re.findall(r'(H\d+:.*?\.)', h_phrases[1])
+        formatedPhrases = [f.strip().rstrip('.') + ";\n" for f in phrases]
+        if formatedPhrases:
+            formatedPhrases = "\n".join(formatedPhrases)
+            warningPhrases = translate(formatedPhrases)
+
+if data['cetesb']:
+    text = re.sub(r'^Frase\(s\) de perigo', '', data['cetesb'][3][3][0])
+    phrases = re.findall(r'H\d+\s*-\s*[^H]+', text)
+    formatedPhrases = [f.strip() + ";\n" for f in phrases]
+    if formatedPhrases:
+        warningPhrases = formatedPhrases
+
 worryPhrases ='Não disponível'
+if data['gestis']:
+    p_phrases = re.split(r'P-phrases', data['gestis']['REGULATIONS'][0]['text'], maxsplit=1)
+    if len(h_phrases) > 2:
+        phrases = re.findall(r'(P[\d\+]+:.*?\.)', p_phrases[1])
+        formatedPhrases = [f.strip().rstrip('.') + ";\n" for f in phrases]
+        if formatedPhrases:
+            formatedPhrases = "\n".join(formatedPhrases)
+            worryPhrases = translate(formatedPhrases)
 
-
-
+if data['cetesb']:
+    p_phrases = re.sub(r'^Frase\(s\) de precaução.*?\)', '', data['cetesb'][3][4][0])
+    phrases = re.findall(r'(P[\d\+ ]+-.*?\.)', p_phrases)
+    formatedPhrases = [f.strip().rstrip('.') + ";\n" for f in phrases]
+    if formatedPhrases:
+        worryPhrases = "\n".join(formatedPhrases)
 
 doc = HeaderGen(Document(),ProductName)
 mkSec1(doc,ProductName,Uses,ProviderInfo,Emergency)
