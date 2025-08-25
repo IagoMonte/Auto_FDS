@@ -7,7 +7,7 @@ def getCetesbByCas(Cas: str):
     data = res.json()['data']
 
     for i in data:
-        if i[3] == Cas:
+        if i[3].strip() == Cas:
             return i[0]
 
 def parseCetesbHtml(content: bytes):

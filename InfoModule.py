@@ -3,8 +3,16 @@ from main import getData, translate
 from Header import HeaderGen
 from pictograms import class_to_pictograms
 from docx import Document
-from Section import mkSec2,mkSec1
-data = getData('7664-93-9')
+from Section import mkSec1,mkSec2,mkSec3
+
+
+#cas = '7664-93-9' # Sulfurico
+#cas = '7647-14-5' # Sal
+#cas = '57-13-6'   # Ureia
+cas = '7681-52-9' # Hipo
+#cas = '7647-01-0' # HCL
+
+data = getData(cas)
 
 ProductName = 'Não disponível'
 
@@ -18,10 +26,10 @@ elif data['gestis']['IDENTIFICATION'] !='':
             text = text.split(marker)[0].strip()
             break
     ProductName =" ".join(text.split()[:2])
-    if re.search(r'\d{2,7}-\d{2}-\d', 
-                 data['gestis']['IDENTIFICATION'][0]['text']
-                 ) != re.search(r'\d{2,7}-\d{2}-\d', 
-                                data['icsc']['b_list'][2].text):
+
+    casGestis = re.search(r'\d{2,7}-\d{2}-\d', data['gestis']['IDENTIFICATION'][0]['text']).group(0)
+    casICSC = re.search(r'\d{2,7}-\d{2}-\d', data['icsc']['b_list'][2].text).group(0)
+    if casGestis != casICSC:
         data['icsc'] = []
 elif data['icsc'] != []:
     ProductName = data['icsc']['b_list'][0].text.split(",")[0].strip() 
@@ -60,7 +68,6 @@ if data['gestis']:
 
     if ClassficationGestis != '':
         Classfication = translate(ClassficationGestis)
-print(Classfication)
 #cetesb
 if data['cetesb'] != []:
     Classfication= data['cetesb'][3][0][0]
@@ -136,9 +143,25 @@ if data['cetesb']:
     if formatedPhrases:
         worryPhrases = "\n".join(formatedPhrases)
 
+#section 3
+subOrMix = 'SUBSTÂNCIA'#Always
+synonym = 'Não disponível'
+if data['icsc']:
+    synonym = ";".join(
+        translate(content) 
+        for i, content in enumerate(data['icsc']['td_list'][2].contents) 
+        if i % 2 == 0
+        )
+if data['cetesb']:
+    synonym = data['cetesb'][1][0][0][9::]
+    
+chemID = ProductName #Always
+impure = 'Não apresenta impurezas que contribuam para o perigo.'#Always
+
 doc = HeaderGen(Document(),ProductName)
 mkSec1(doc,ProductName,Uses,ProviderInfo,Emergency)
 mkSec2(doc,Classfication,ClassSystem,OtherDangerous,PictoPath,pictoWidth,pictoHeight,warningWord,warningPhrases,worryPhrases)
+mkSec3(doc,subOrMix,chemID,synonym,cas,impure)
 
 nome_arquivo = f'FDS_{ProductName.replace(" ", "_")}.docx'
 doc.save(nome_arquivo)

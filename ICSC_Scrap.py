@@ -1,5 +1,6 @@
 import requests as rq
 from bs4 import BeautifulSoup as bs
+import re
 
 
 def getUrlByCAS(CasNumber: str) -> str:
@@ -22,7 +23,9 @@ def getDataByCas(Cas: str):
     data = {
         "b_list": icscSoup.select('b'),
         "p_list": icscSoup.select('p'),
-        "td_list": icscSoup.select('td')
+        "td_list": icscSoup.select('td'),
+        "strong_list": icscSoup.select('strong')
     }
+    
 
     return data
