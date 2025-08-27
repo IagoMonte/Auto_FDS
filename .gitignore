@@ -162,3 +162,5 @@ cython_debug/
 .vscode/launch.json
 Section1.docx
 .~lock.Section1.docx#
+teste.py
+

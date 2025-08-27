@@ -3,14 +3,14 @@ from main import getData, translate
 from Header import HeaderGen
 from pictograms import class_to_pictograms
 from docx import Document
-from Section import mkSec1,mkSec2,mkSec3
+from Section import mkSec1,mkSec2,mkSec3,mkSec4
 
 
 #cas = '7664-93-9' # Sulfurico
 #cas = '7647-14-5' # Sal
 #cas = '57-13-6'   # Ureia
-cas = '7681-52-9' # Hipo
-#cas = '7647-01-0' # HCL
+#cas = '7681-52-9' # Hipo
+cas = '7647-01-0' # HCL
 
 data = getData(cas)
 
@@ -158,10 +158,120 @@ if data['cetesb']:
 chemID = ProductName #Always
 impure = 'Não apresenta impurezas que contribuam para o perigo.'#Always
 
+
+#Section4
+#first aid gestis
+if data['gestis']:
+    sec4Gestis = None
+    try:
+        raw_text = data['gestis']['OCCUPATIONAL HEALTH AND FIRST AID'][2]['text']
+        start = raw_text.find("FIRST AID")
+        if start == -1:
+            start = 0
+        # possíveis marcadores de fim do bloco FIRST AID
+        candidates = [
+            raw_text.find("Information for physicians", start),
+            raw_text.find("Recommendations", start),
+            raw_text.find("Annotation", start),
+        ]
+        ends = [i for i in candidates if i != -1]
+        end = min(ends) if ends else len(raw_text)
+        block = raw_text[start:end]
+
+        # 2) Localiza cabeçalhos principais (não seguidos de ":", para não pegar subtópicos)
+        header_re = re.compile(r"\b(Eyes|Skin|Respiratory tract|Swallowing)\b(?!:)")
+        matches = list(header_re.finditer(block))
+
+        # 3) Extrai conteúdo entre cabeçalhos
+        mapping = {
+            "Eyes": "eyes",
+            "Skin": "skin",
+            "Respiratory tract": "inhalation",
+            "Swallowing": "intake",
+        }
+        result = {v: "" for v in mapping.values()}
+
+        for i, m in enumerate(matches):
+            header = m.group(1)
+            start_content = m.end()
+            end_content = matches[i + 1].start() if i + 1 < len(matches) else len(block)
+            content = block[start_content:end_content].strip(" -:\n\t ").strip()
+            result[mapping[header]] = content
+
+        sec4Gestis = result
+    except:
+        pass
+
+inhalation = ''
+#gestis
+if sec4Gestis:
+    inhalation = translate(re.sub(r"\[.*?\]", "", sec4Gestis['inhalation']).strip())
+#icsc
+if data['icsc']:
+    text = data['icsc']['td_list'][11].text
+    clean_text = text.replace('\xa0', ' ')
+    if clean_text != ' ':
+        inhalation = translate(clean_text)
+if inhalation == '':
+    inhalation = '''Remova a vítima para um local ventilado e mantenha-a em repouso, numa posição que não dificulte a respiração. Caso a pessoa sinta indisposição, contate imediatamente um médico. Se possível, leve consigo o rótulo ou a embalagem da substancia.'''
+
+
+skin = ''
+#gestis
+if sec4Gestis:
+    skin = translate(re.sub(r"\[.*?\]", "", sec4Gestis['skin']).strip())
+#icsc
+if data['icsc']:
+    text = data['icsc']['td_list'][14].text
+    clean_text = text.replace('\xa0', ' ')
+    if clean_text != ' ':
+        skin = translate(clean_text)
+if skin == '':
+    skin = '''Lave imediatamente a pele exposta com quantidade suficiente de água para remoção do material. Retire as roupas ou acessórios contaminados. Em caso de contato menor com a pele, evite espalhar o produto em áreas não, atingidas. Consulte um médico. Leve este documento.'''
+
+eyes = ''
+#gestis
+if sec4Gestis:
+    eyes = translate(re.sub(r"\[.*?\]", "", sec4Gestis['eyes']).strip())
+#icsc
+if data['icsc']:
+    text = data['icsc']['td_list'][17].text
+    clean_text = text.replace('\xa0', ' ')
+    if clean_text != ' ':
+        eyes = translate(clean_text)
+if eyes == '':
+    eyes = '''Lave imediatamente os olhos com quantidade suficiente de água, mantendo as pálpebras abertas, durante vários minutos. No caso de uso de lentes de contato, remova-as, se for fácil e enxague novamente. Consulte um médico. Leve este documento.'''
+
+#gestis
+if sec4Gestis:
+    intake = translate(re.sub(r"\[.*?\]", "", sec4Gestis['intake']).strip())
+#icsc
+if data['icsc']:
+    text = data['icsc']['td_list'][20].text
+    clean_text = text.replace('\xa0', ' ')
+    if clean_text != ' ':
+        intake = translate(clean_text)
+if intake == '':
+    intake ='''Não induza o vômito. Nunca forneça algo por via oral a uma pessoa inconsciente. Lave a boca da vítima com água em abundância. Consulte imediatamente um médico. Leve este documento.'''
+
+#symptoms
+after = '''Não disponível'''
+if data['icsc']:
+    symptoms = {
+            'Inalação': translate(data['icsc']['td_list'][9].text.replace('\xa0', ' ')),
+            'Contato com a pele': translate(data['icsc']['td_list'][12].text.replace('\xa0', ' ')),
+            'Contato com os olhos': translate(data['icsc']['td_list'][15].text.replace('\xa0', ' ')),
+            'Ingestão': translate(data['icsc']['td_list'][18].text.replace('\xa0', ' '))
+        }
+    after = "\n".join(f"{label}: {desc}" for label, desc in symptoms.items() if desc.strip())
+
+doctor = '''Ao prestar socorro, proteja-se para evitar contato com a substância causadora do dano. O tratamento deve focar em aliviar os sintomas e garantir o suporte das funções vitais, como repor fluidos e eletrólitos, corrigir problemas metabólicos e, se necessário, auxiliar na respiração. Em caso de contato com a pele, evite esfregar a área afetada.'''
+
 doc = HeaderGen(Document(),ProductName)
 mkSec1(doc,ProductName,Uses,ProviderInfo,Emergency)
 mkSec2(doc,Classfication,ClassSystem,OtherDangerous,PictoPath,pictoWidth,pictoHeight,warningWord,warningPhrases,worryPhrases)
 mkSec3(doc,subOrMix,chemID,synonym,cas,impure)
+mkSec4(doc, inhalation,skin,eyes,intake,after,doctor)
 
 nome_arquivo = f'FDS_{ProductName.replace(" ", "_")}.docx'
 doc.save(nome_arquivo)
