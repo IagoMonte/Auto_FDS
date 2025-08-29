@@ -3,14 +3,14 @@ from main import getData, translate
 from Header import HeaderGen
 from pictograms import class_to_pictograms
 from docx import Document
-from Section import mkSec1,mkSec2,mkSec3,mkSec4
+from Section import mkSec1,mkSec2,mkSec3,mkSec4,mkSec5
 
 
-#cas = '7664-93-9' # Sulfurico
+cas = '7664-93-9' # Sulfurico
 #cas = '7647-14-5' # Sal
 #cas = '57-13-6'   # Ureia
 #cas = '7681-52-9' # Hipo
-cas = '7647-01-0' # HCL
+#cas = '7647-01-0' # HCL
 
 data = getData(cas)
 
@@ -168,7 +168,7 @@ if data['gestis']:
         start = raw_text.find("FIRST AID")
         if start == -1:
             start = 0
-        # possíveis marcadores de fim do bloco FIRST AID
+
         candidates = [
             raw_text.find("Information for physicians", start),
             raw_text.find("Recommendations", start),
@@ -178,11 +178,11 @@ if data['gestis']:
         end = min(ends) if ends else len(raw_text)
         block = raw_text[start:end]
 
-        # 2) Localiza cabeçalhos principais (não seguidos de ":", para não pegar subtópicos)
+
         header_re = re.compile(r"\b(Eyes|Skin|Respiratory tract|Swallowing)\b(?!:)")
         matches = list(header_re.finditer(block))
 
-        # 3) Extrai conteúdo entre cabeçalhos
+
         mapping = {
             "Eyes": "eyes",
             "Skin": "skin",
@@ -266,12 +266,40 @@ if data['icsc']:
     after = "\n".join(f"{label}: {desc}" for label, desc in symptoms.items() if desc.strip())
 
 doctor = '''Ao prestar socorro, proteja-se para evitar contato com a substância causadora do dano. O tratamento deve focar em aliviar os sintomas e garantir o suporte das funções vitais, como repor fluidos e eletrólitos, corrigir problemas metabólicos e, se necessário, auxiliar na respiração. Em caso de contato com a pele, evite esfregar a área afetada.'''
+#Section 5
+#Meios de extinção:
+if data['icsc']:
+    extinction = translate(data['icsc']['td_list'][8].text.replace('\xa0', ' '))
+    
+    pass
+elif data['gestis']:
+    pass
+else:
+    extinction = 'Não disponível'
+    pass
+#Perigos específicos da mistura ou substância:
+if data['icsc']:
+    pass
+elif data['gestis']:
+    pass
+else:
+    EspDangerous = 'Não disponível'
+    pass
+#Medidas de proteção especiais para a equipe de combate a incêndio:
+if data['icsc']:
+    pass
+elif data['gestis']:
+    pass
+else:
+    firefighters = 'Não disponível'
+    pass
 
 doc = HeaderGen(Document(),ProductName)
 mkSec1(doc,ProductName,Uses,ProviderInfo,Emergency)
 mkSec2(doc,Classfication,ClassSystem,OtherDangerous,PictoPath,pictoWidth,pictoHeight,warningWord,warningPhrases,worryPhrases)
 mkSec3(doc,subOrMix,chemID,synonym,cas,impure)
 mkSec4(doc, inhalation,skin,eyes,intake,after,doctor)
+mkSec5(doc,extinction,EspDangerous,firefighters)
 
 nome_arquivo = f'FDS_{ProductName.replace(" ", "_")}.docx'
 doc.save(nome_arquivo)
