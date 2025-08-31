@@ -6,11 +6,11 @@ from docx import Document
 from Section import mkSec1,mkSec2,mkSec3,mkSec4,mkSec5
 
 
-cas = '7664-93-9' # Sulfurico
+#cas = '7664-93-9' # Sulfurico
 #cas = '7647-14-5' # Sal
 #cas = '57-13-6'   # Ureia
 #cas = '7681-52-9' # Hipo
-#cas = '7647-01-0' # HCL
+cas = '7647-01-0' # HCL
 
 data = getData(cas)
 
@@ -268,31 +268,57 @@ if data['icsc']:
 doctor = '''Ao prestar socorro, proteja-se para evitar contato com a substância causadora do dano. O tratamento deve focar em aliviar os sintomas e garantir o suporte das funções vitais, como repor fluidos e eletrólitos, corrigir problemas metabólicos e, se necessário, auxiliar na respiração. Em caso de contato com a pele, evite esfregar a área afetada.'''
 #Section 5
 #Meios de extinção:
+extinction = ''
+if data.get('gestis') and data['gestis'].get('SAFE HANDLING'):
+    safe_handling_list = data['gestis']['SAFE HANDLING']
+    fire_fighting_text = None
+    for item in safe_handling_list:
+        text = item.get('text', '')
+        if text.startswith('FIRE FIGHTING MEASURES'):
+            fire_fighting_text = text
+            break
+    if fire_fighting_text:
+        match = re.search(r'Instructions(.*?)(Special protective equipment|$)', fire_fighting_text, re.DOTALL)
+        if match:
+            conteudo = match.group(1).strip()
+            extinction = translate(conteudo)
+        else:
+            extinction = 'Não disponível'
+    else:
+        extinction = 'Não disponível'    
 if data['icsc']:
-    extinction = translate(data['icsc']['td_list'][8].text.replace('\xa0', ' '))
-    
-    pass
-elif data['gestis']:
-    pass
-else:
+    text = translate(data['icsc']['td_list'][8].text.replace('\xa0', ' '))
+    if text != '':
+        extinction = text
+        
+if extinction == '':
     extinction = 'Não disponível'
-    pass
+    
+    
 #Perigos específicos da mistura ou substância:
+EspDangerous = 'Não disponível'
 if data['icsc']:
-    pass
-elif data['gestis']:
-    pass
-else:
-    EspDangerous = 'Não disponível'
-    pass
+    text = translate(data['icsc']['td_list'][6].text.replace('\xa0', ' '))
+    if text != '':
+        EspDangerous= text
+    
 #Medidas de proteção especiais para a equipe de combate a incêndio:
-if data['icsc']:
-    pass
-elif data['gestis']:
-    pass
-else:
-    firefighters = 'Não disponível'
-    pass
+firefighters = 'Não disponível'
+if data.get('gestis') and data['gestis'].get('SAFE HANDLING'):
+    safe_handling_list = data['gestis']['SAFE HANDLING']
+    fire_fighting_text = None
+    for item in safe_handling_list:
+        text = item.get('text', '')
+        if text.startswith('FIRE FIGHTING MEASURES'):
+            fire_fighting_text = text
+            break
+    if fire_fighting_text:
+        match = re.search(r'Special protective equipment(.*?)(\n[A-Z ]{3,}|$)', fire_fighting_text, re.DOTALL)
+        if match:
+            conteudo = match.group(1).strip()
+            if conteudo:
+                firefighters = translate(conteudo)
+
 
 doc = HeaderGen(Document(),ProductName)
 mkSec1(doc,ProductName,Uses,ProviderInfo,Emergency)
