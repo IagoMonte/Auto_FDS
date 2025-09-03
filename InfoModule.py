@@ -3,14 +3,14 @@ from main import getData, translate
 from Header import HeaderGen
 from pictograms import class_to_pictograms
 from docx import Document
-from Section import mkSec1,mkSec2,mkSec3,mkSec4,mkSec5
+from Section import mkSec1,mkSec2,mkSec3,mkSec4,mkSec5,mkSec6
 
 
 #cas = '7664-93-9' # Sulfurico
 #cas = '7647-14-5' # Sal
 #cas = '57-13-6'   # Ureia
-#cas = '7681-52-9' # Hipo
-cas = '7647-01-0' # HCL
+cas = '7681-52-9' # Hipo
+#cas = '7647-01-0' # HCL
 
 data = getData(cas)
 
@@ -25,18 +25,17 @@ elif data['gestis']['IDENTIFICATION'] !='':
         if marker in text:
             text = text.split(marker)[0].strip()
             break
-    ProductName =" ".join(text.split()[:2])
+    ProductName =translate(" ".join(text.split()[:2]))
 
     casGestis = re.search(r'\d{2,7}-\d{2}-\d', data['gestis']['IDENTIFICATION'][0]['text']).group(0)
     casICSC = re.search(r'\d{2,7}-\d{2}-\d', data['icsc']['b_list'][2].text).group(0)
     if casGestis != casICSC:
         data['icsc'] = []
 elif data['icsc'] != []:
-    ProductName = data['icsc']['b_list'][0].text.split(",")[0].strip() 
+    ProductName = translate(data['icsc']['b_list'][0].text.split(",")[0].strip()) 
 else:
     ProductName = input('Nome do produto')
 
-ProductName = translate(ProductName)
 
 # Uses Processing
 Uses = ''
@@ -319,6 +318,37 @@ if data.get('gestis') and data['gestis'].get('SAFE HANDLING'):
             if conteudo:
                 firefighters = translate(conteudo)
 
+#sec 6
+#Para o pessoal que não faz parte dos serviços de emergência:
+NonEmergencyPP = '''Não fume. Evite contato com o produto. Caso necessário, utilize equipamento de proteção individual conforme descrito na seção 8.''' #always
+
+#Para pessoal de serviço de emergência:
+EmergencyPP = '''Isole o vazamento de fontes de ignição preventivamente.''' #always
+
+#Precauções ao meio ambiente:
+environment = '''Não deve ser jogado no meio ambiente.''' #always
+
+#Métodos e materiais para contenção e limpeza:
+containmentClean = '''Coletar tanto quanto possível do derramamento com um material absorvente adequado.
+Contenha o vazamento, absorva com material absorvente não combustível (por exemplo, areia, terra, terra diatomácea, vermiculita) e transfira para um recipiente para descarte de acordo com os regulamentos locais/nacionais (consulte a seção 13).
+Varrer e escavar para recipientes adequados para eliminação de resíduos.
+Depois de limpar, lavar os traços da substância com água.
+Para a limpeza do chão e dos objectos contaminados por este produto, utilizar muita água''' #default
+#TECHNICAL MEASURES - HANDLING->Cleaning and maintenance
+if data['gestis'] and data['gestis']['SAFE HANDLING']:
+    safe_handling_list = data['gestis']['SAFE HANDLING']
+    handling = None
+    for item in safe_handling_list:
+        text = item.get('text', '')
+        if text.startswith('TECHNICAL MEASURES - HANDLING'):
+            handling = text
+            break
+    if handling:
+        match = re.search(r'Cleaning and maintenance\s*(.*?)(?=\n[A-Z][A-Z ]{2,}|$)', handling, re.DOTALL)
+        if match:
+            conteudo = match.group(1).strip()
+            if conteudo:
+                containmentClean = translate(conteudo)
 
 doc = HeaderGen(Document(),ProductName)
 mkSec1(doc,ProductName,Uses,ProviderInfo,Emergency)
@@ -326,6 +356,7 @@ mkSec2(doc,Classfication,ClassSystem,OtherDangerous,PictoPath,pictoWidth,pictoHe
 mkSec3(doc,subOrMix,chemID,synonym,cas,impure)
 mkSec4(doc, inhalation,skin,eyes,intake,after,doctor)
 mkSec5(doc,extinction,EspDangerous,firefighters)
+mkSec6(doc,NonEmergencyPP,EmergencyPP,environment,containmentClean)
 
-nome_arquivo = f'FDS_{ProductName.replace(" ", "_")}.docx'
+nome_arquivo = f'FDS_{ProductName.replace(" ", "_")}_EN.docx'
 doc.save(nome_arquivo)

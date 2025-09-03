@@ -92,11 +92,6 @@ containmentClean = '''Utilize névoa de água ou espuma supressora de vapor para
 
 mkSec6(doc,NonEmergencyPP,EmergencyPP,environment,containmentClean)
 
-safeHandling = '''Manuseie em uma área ventilada ou com sistema geral de ventilação/exaustão local. Evite formação de vapores e névoas. Evite exposição ao produto, pois os efeitos podem não ser sentidos de imediato. Utilize equipamento de proteção individual conforme descrito na seção 8. Evite contato com materiais incompatíveis.'''
-hygiene = '''Lave as mãos e o rosto cuidadosamente após o manuseio e antes de comer, beber, fumar ou ir ao banheiro. Roupas contaminadas devem ser trocadas e lavadas antes de sua reutilização. Remova a roupa e o equipamento de proteção contaminado antes de entrar nas áreas de alimentação.'''
-fireExplosion = 'Não é esperado que o produto apresente perigo de incêndio ou explosão.'
-conditions = '''Armazene em local bem ventilado e longe da luz solar e de umidade. Mantenha o recipiente fechado. Não é necessária adição de estabilizantes e antioxidantes para garantir a durabilidade. Este produto pode reagir de forma perigosa com alguns materiais incompatíveis, conforme destacado na Seção 10.\nMantenha afastado de materiais incompatíveis.'''
-
 SafeHandling = '''Manuseie em uma área ventilada ou com sistema geral de ventilação/exaustão local. Evite formação de vapores e névoas. Evite exposição ao produto, pois os efeitos podem não ser sentidos de imediato. Utilize equipamento de proteção individual conforme descrito na seção 8. Evite contato com materiais incompatíveis.'''
 hygiene = '''Lave as mãos e o rosto cuidadosamente após o manuseio e antes de comer, beber, fumar ou ir ao banheiro. Roupas contaminadas devem ser trocadas e lavadas antes de sua reutilização. Remova a roupa e o equipamento de proteção contaminado antes de entrar nas áreas de alimentação.'''
 FireExplosion = '''Não é esperado que o produto apresente perigo de incêndio ou explosão.'''

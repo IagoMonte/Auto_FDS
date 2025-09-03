@@ -1,6 +1,5 @@
 import requests as rq
 from bs4 import BeautifulSoup as bs
-import re
 
 
 def getUrlByCAS(CasNumber: str) -> str:
