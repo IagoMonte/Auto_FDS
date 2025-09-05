@@ -3,14 +3,14 @@ from main import getData, translate
 from Header import HeaderGen
 from pictograms import class_to_pictograms
 from docx import Document
-from Section import mkSec1,mkSec2,mkSec3,mkSec4,mkSec5,mkSec6
+from Section import mkSec1,mkSec2,mkSec3,mkSec4,mkSec5,mkSec6,mkSec7
 
 
 #cas = '7664-93-9' # Sulfurico
 #cas = '7647-14-5' # Sal
 #cas = '57-13-6'   # Ureia
-cas = '7681-52-9' # Hipo
-#cas = '7647-01-0' # HCL
+#cas = '7681-52-9' # Hipo erro sec7
+cas = '7647-01-0' # HCL erro sec7
 
 data = getData(cas)
 
@@ -298,7 +298,7 @@ if extinction == '':
 EspDangerous = 'Não disponível'
 if data['icsc']:
     text = translate(data['icsc']['td_list'][6].text.replace('\xa0', ' '))
-    if text != '':
+    if text.strip():
         EspDangerous= text
     
 #Medidas de proteção especiais para a equipe de combate a incêndio:
@@ -335,6 +335,11 @@ Varrer e escavar para recipientes adequados para eliminação de resíduos.
 Depois de limpar, lavar os traços da substância com água.
 Para a limpeza do chão e dos objectos contaminados por este produto, utilizar muita água''' #default
 #TECHNICAL MEASURES - HANDLING->Cleaning and maintenance
+if data['icsc']:
+    text = data['icsc']['td_list'][21].text.replace('\xa0', ' ')
+    if text.strip():
+        containmentClean = translate(text)
+
 if data['gestis'] and data['gestis']['SAFE HANDLING']:
     safe_handling_list = data['gestis']['SAFE HANDLING']
     handling = None
@@ -350,6 +355,71 @@ if data['gestis'] and data['gestis']['SAFE HANDLING']:
             if conteudo:
                 containmentClean = translate(conteudo)
 
+#section 7
+#Precauções para manuseio seguro:
+SafeHandling = '''Manuseie em local arejado e com ventilação adequada. Evite a formação de poeiras, vapores ou névoas. Reduza a exposição direta ao produto sempre que possível. Utilize os equipamentos de proteção individual apropriados. Evite contato com substâncias ou materiais incompatíveis.'''
+#TECHNICAL MEASURES - HANDLING -> Workplace
+if data['gestis'] and data['gestis']['SAFE HANDLING']:
+    safe_handling_list = data['gestis']['SAFE HANDLING']
+    handling = None
+    for item in safe_handling_list:
+        text = item.get('text', '')
+        if text.startswith('TECHNICAL MEASURES - HANDLING'):
+            handling = text
+            break
+    if handling:
+        match = re.search(r'Workplace\s*(.*?)(?=\n[A-Z][A-Z ]{2,}|$)', handling, re.DOTALL)
+        if match:
+            conteudo = match.group(1).strip()
+            if conteudo:
+                SafeHandling = translate(conteudo)
+
+#Medidas de higiene:
+hygiene = '''Lave as mãos e o rosto cuidadosamente após o manuseio e antes de comer, beber, fumar ou ir ao banheiro. Roupas contaminadas devem ser trocadas e lavadas antes de sua reutilização. Remova a roupa e o equipamento de proteção contaminado antes de entrar nas áreas de alimentação.'''#always
+
+#Prevenção de incêndio e explosão:
+FireExplosion = '''Não se espera que o produto apresente risco significativo de incêndio ou explosão em condições normais de uso e armazenamento.'''
+#icsc prevention fire & explosion
+if data['icsc']:
+    text = data['icsc']['td_list'][7].text.replace('\xa0', ' ')
+    if text.strip():
+        FireExplosion = translate(text)
+
+#Condições adequadas:
+adqCondition = '''Armazene em local seco, fresco e bem ventilado. Mantenha os recipientes fechados e protegidos da luz solar direta e da umidade. Evite a proximidade de materiais incompatíveis.'''
+#icsc storage
+if data['icsc']:
+    text = data['icsc']['td_list'][7].text.replace('\xa0', ' ')
+    if text.strip():
+        FireExplosion = translate(text)
+
+#Materiais adequados para embalagem:
+adqPackage = '''Não disponível'''
+#icsc packaging
+if data['icsc']:
+    text = data['icsc']['td_list'][24].text.replace('\xa0', ' ')
+    if text.strip():
+        adqPackage = translate(text)
+
+#TECHNICAL MEASURES - STORAGE -> Conditions of collocated storage
+if data['gestis'] and data['gestis']['SAFE HANDLING']:
+    safe_handling_list = data['gestis']['SAFE HANDLING']
+    handling = None
+    for item in safe_handling_list:
+        text = item.get('text', '')
+        if text.startswith('TECHNICAL MEASURES - STORAGE'):
+            handling = text
+            break
+    if handling:
+        match = re.search(r'Conditions of collocated storage\s*(.*?)(?=\n[A-Z][A-Z ]{2,}|$)', handling, re.DOTALL)
+        if match:
+            conteudo = match.group(1).strip()
+            if conteudo:
+                adqPackage = translate(conteudo)
+
+
+
+
 doc = HeaderGen(Document(),ProductName)
 mkSec1(doc,ProductName,Uses,ProviderInfo,Emergency)
 mkSec2(doc,Classfication,ClassSystem,OtherDangerous,PictoPath,pictoWidth,pictoHeight,warningWord,warningPhrases,worryPhrases)
@@ -357,6 +427,7 @@ mkSec3(doc,subOrMix,chemID,synonym,cas,impure)
 mkSec4(doc, inhalation,skin,eyes,intake,after,doctor)
 mkSec5(doc,extinction,EspDangerous,firefighters)
 mkSec6(doc,NonEmergencyPP,EmergencyPP,environment,containmentClean)
+mkSec7(doc,SafeHandling,hygiene,FireExplosion,adqCondition,adqPackage)
 
 nome_arquivo = f'FDS_{ProductName.replace(" ", "_")}_EN.docx'
 doc.save(nome_arquivo)

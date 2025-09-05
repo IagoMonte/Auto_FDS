@@ -99,7 +99,7 @@ adqCondition = '''Armazene em local bem ventilado e longe da luz solar e de umid
 adqPackage = '''Tanques: aço carbono - ASTM A 283 + revestimento de borracha + tijolo antiácido. Em pequenas quantidades, pode ser armazenado em recipientes de vidro.'''
 idqPackage = '''Não são conhecidos materiais inadequados.'''
 
-mkSec7(doc,SafeHandling,hygiene,FireExplosion,adqCondition,adqPackage,idqPackage)
+mkSec7(doc,SafeHandling,hygiene,FireExplosion,adqCondition,adqPackage)
 
 exposure = '''Os valores abaixo são aplicáveis para ambientes de trabalho.
 OSHA - PEL - TWA: 1 mg/m³ (29 CFR 1910.1000 Table Z-1) (CFR);

@@ -264,7 +264,7 @@ def mkSec6(Document,NonEmergencyPP,EmergencyPP,environment,containmentClean):
     addLine(Document,'Precauções ao meio ambiente:',environment,True)
     addLine(Document,'Métodos e materiais para contenção e limpeza:',containmentClean) 
 
-def mkSec7(Document,SafeHandling,hygiene,FireExplosion,adqCondition,adqPackage,idqPackage):
+def mkSec7(Document,SafeHandling,hygiene,FireExplosion,adqCondition,adqPackage):
     addTitle(Document,'7- MANUSEIO E ARMAZENAMENTO')
     addSubTitle(Document,'Medidas técnicas apropriadas para o manuseio')
     addLine(Document,'Precauções para manuseio seguro:',SafeHandling,True)
@@ -272,8 +272,7 @@ def mkSec7(Document,SafeHandling,hygiene,FireExplosion,adqCondition,adqPackage,i
     addSubTitle(Document,'Condições de armazenamento seguro, incluindo qualquer incompatibilidade')
     addLine(Document,'Prevenção de incêndio e explosão:',FireExplosion,True)
     addLine(Document,'Condições adequadas:',adqCondition)
-    addLine(Document,'Materiais adequados para embalagem:',adqPackage,True)
-    addLine(Document,'Materiais inadequados para embalagem:',idqPackage)
+    addLine(Document,'Métodos e Materiais adequados para embalagem:',adqPackage,True)
 
 def mkSec8(Document,exposure,biology,otherLimits,engineeringCtrl,eyesFace,skinBody,Breathing,Termic):
     addTitle(Document,'8- CONTROLE DE EXPOSIÇÃO E PROTEÇÃO INDIVIDUAL')
