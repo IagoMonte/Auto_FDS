@@ -3,14 +3,14 @@ from main import getData, translate
 from Header import HeaderGen
 from pictograms import class_to_pictograms
 from docx import Document
-from Section import mkSec1,mkSec2,mkSec3,mkSec4,mkSec5,mkSec6,mkSec7
+from Section import mkSec1,mkSec2,mkSec3,mkSec4,mkSec5,mkSec6,mkSec7,mkSec8,mkSec9
 
 
-#cas = '7664-93-9' # Sulfurico
+cas = '7664-93-9' # Sulfurico
 #cas = '7647-14-5' # Sal
 #cas = '57-13-6'   # Ureia
-#cas = '7681-52-9' # Hipo erro sec7
-cas = '7647-01-0' # HCL erro sec7
+#cas = '7681-52-9' # Hipo
+#cas = '7647-01-0' # HCL
 
 data = getData(cas)
 
@@ -417,7 +417,121 @@ if data['gestis'] and data['gestis']['SAFE HANDLING']:
             if conteudo:
                 adqPackage = translate(conteudo)
 
+#Sec8
 
+#Limites de exposição ocupacional:
+exposure = '''Não disponível'''
+#ICSC->OCCUPATIONAL EXPOSURE LIMITS
+if data['icsc']:
+    text = data['icsc']['td_list'][35].text.replace('\xa0', ' ')
+    if text.strip():
+        exposure = translate(text)
+#CETESB
+if data['cetesb']:
+    lines = [" | ".join(item) for item in data['cetesb'][8]]
+    text = "\n".join(lines)
+    if text.strip():
+        exposure = text
+
+#Indicadores biológicos:
+biology = 'Não disponível.' #NOT FOUND IN GESTIS, ICSC, CETESB
+
+#Outros limites e valores:
+otherLimits = 'Não disponível.' #NOT FOUND IN GESTIS, ICSC, CETESB
+
+#Medidas de controle de engenharia:
+engineeringCtrl = '''Recomenda-se o uso de ventilação adequada para manter as concentrações de vapores, névoas ou poeiras abaixo dos limites de exposição ocupacional. Sempre que possível, utilize sistemas de exaustão local e ventilação geral para reduzir a exposição no ambiente de trabalho.
+Instalações de lavagem de olhos e chuveiros de emergência devem estar disponíveis próximas às áreas de manuseio do produto.
+Assegurar que os procedimentos de higiene e segurança sejam seguidos, evitando contato direto com a substância e prevenindo a inalação de partículas, vapores ou gases liberados durante o uso.'''
+
+#Proteção dos olhos/face:
+eyesFace = 'Não disponível'
+#gestis
+if data['gestis'] and data['gestis']['SAFE HANDLING']:
+    safe_handling_list = data['gestis']['SAFE HANDLING']
+    handling = None
+    for item in safe_handling_list:
+        text = item.get('text', '')
+        if text.startswith('PERSONAL PROTECTION'):
+            handling = text
+            break
+    if handling:
+        match = re.search(
+    r'Eye protection\s*(.*?)(?=(?:Body protection|Respiratory protection|Hand protection|Skin protection|Occupational hygiene|$))',
+    handling, re.DOTALL | re.IGNORECASE
+)
+        if match:
+            conteudo = match.group(1).strip()
+            if conteudo:
+                eyesFace = translate(conteudo)
+#Proteção da pele e do corpo:
+skinBody = 'Não disponível'
+#gestis
+if data['gestis'] and data['gestis']['SAFE HANDLING']:
+    safe_handling_list = data['gestis']['SAFE HANDLING']
+    handling = None
+    for item in safe_handling_list:
+        text = item.get('text', '')
+        if text.startswith('PERSONAL PROTECTION'):
+            handling = text
+            break
+    if handling:
+        match = re.search(
+    r'Body protection\s*(.*?)(?=(?:Respiratory protection|Eye protection|Hand protection|Skin protection|Occupational hygiene|$))',
+    handling, re.DOTALL | re.IGNORECASE
+)
+        if match:
+            conteudo = match.group(1).strip()
+            if conteudo:
+                skinBody = translate(conteudo)
+#Proteção respiratória:
+Breathing = 'Não disponível'
+#gestis
+if data['gestis'] and data['gestis']['SAFE HANDLING']:
+    safe_handling_list = data['gestis']['SAFE HANDLING']
+    handling = None
+    for item in safe_handling_list:
+        text = item.get('text', '')
+        if text.startswith('PERSONAL PROTECTION'):
+            handling = text
+            break
+    if handling:
+        match = re.search(
+    r'Respiratory protection\s*(.*?)(?=(?:Body protection|Eye protection|Hand protection|Skin protection|Occupational hygiene|$))',
+    handling, re.DOTALL | re.IGNORECASE
+)
+        if match:
+            conteudo = match.group(1).strip()
+            if conteudo:
+                Breathing = translate(conteudo)
+#Perigos térmicos:
+Termic = '''Evitar a exposição do produto a fontes de calor, superfícies aquecidas, faíscas ou chamas abertas. O contato com temperaturas elevadas pode provocar decomposição, alteração das propriedades químicas ou liberação de vapores/gases perigosos. Adotar medidas de prevenção para reduzir riscos de queimaduras e acidentes térmicos durante o manuseio, armazenamento e transporte.'''
+#section9
+
+
+
+physical_state = "Líquido oleoso"
+color = "Denso, incolor quando puro e amarelo a marrom-escuro quando impuro"
+odor = "Inodoro"
+melting_point = "10.3 °C"
+boiling_point = "337 °C"
+flammability = "Não disponível"
+explosive_limit = "Não disponível"
+flash_point = "Não disponível"
+auto_ignition_temperature = "Não disponível"
+decomposition_temperature = "340 °C"
+pH = "0.3 a 1.2 (Solução aquosa de 0,1 a 1 N a 25°C)"
+kinematic_viscosity = "Não disponível"
+water_solubility = "Miscível em água (1000 g/L a 25 °C)"
+partition_coefficient = "Não disponível"
+vapor_pressure = "< 0.3 mmHg (< 39.9966 Pa) a 25 °C"
+relative_density = "Densidade absoluta: 1.8302 g/cm³ a 20 °C"
+relative_vapor_density = "3.4 (ar = 1)"
+particle_characteristics = "Não disponível"
+OtherInfo = '''Viscosidade dinâmica: 21 mPa.s a 25 °C.
+pKa = 1,98 (25°C);
+Peso molecular: 98,08 g/mol;
+Substância altamente higroscópica.'''
 
 
 doc = HeaderGen(Document(),ProductName)
@@ -428,6 +542,14 @@ mkSec4(doc, inhalation,skin,eyes,intake,after,doctor)
 mkSec5(doc,extinction,EspDangerous,firefighters)
 mkSec6(doc,NonEmergencyPP,EmergencyPP,environment,containmentClean)
 mkSec7(doc,SafeHandling,hygiene,FireExplosion,adqCondition,adqPackage)
+mkSec8(doc,exposure,biology,otherLimits,engineeringCtrl,eyesFace,skinBody,Breathing,Termic)
+mkSec9(doc, physical_state,color,odor,melting_point,boiling_point,
+       flammability,explosive_limit,flash_point,auto_ignition_temperature,
+       decomposition_temperature,pH,kinematic_viscosity,water_solubility,
+       partition_coefficient,vapor_pressure,relative_density,relative_vapor_density,
+       particle_characteristics,OtherInfo)
+
+
 
 nome_arquivo = f'FDS_{ProductName.replace(" ", "_")}_EN.docx'
 doc.save(nome_arquivo)
