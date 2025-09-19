@@ -1,8 +1,26 @@
+#           ▄▄▄▄▄▄▄▄▄          
+#        ▄▄▀         ▀▄▄       
+#      ▄▀               ▀▄     
+#    ▄▀                   ▀▄   
+#  ▐▀     ▄▄         ▄▄     ▀▌ 
+#  ▐    ▐▀  ▀▌     ▐▀  ▀▌    ▌ 
+# ▐▀   ▐▀    ▀▌   ▐▀    ▀▌   ▀▌
+# ▐    ▐      ▌   ▐      ▌    ▌
+# ▐▄                         ▄▌
+#  ▐      _____________      ▌ 
+#  ▐▄         ▐   ▌          ▌ █  ███   ████   ████  ████  █████     
+#   ▀▄        ▐▄ ▄▌        ▄▀  █ █   █ █      █    █ █   █   █        
+#     ▀▄       ▀▀▀       ▄▀    █ █████ █   ██ █    █ █   █   █        
+#       ▀▄▄           ▄▄▀      █ █   █ █    █ █    █ █   █   █        
+#          ▀▄▄▄▄▄▄▄▄▄▀         █ █   █  ████   ████  ████    █        
+#                                                 
+
 import re
 from bs4 import BeautifulSoup
-from main import getData
+from main import getData, translate
 import re
 from bs4 import BeautifulSoup
+from json import loads as loadjs
 
 def extract_property_value(text, prop):
     values = []
@@ -38,7 +56,6 @@ def extract_property_value(text, prop):
         return f"{chosen[0]} °C" + (f" ({chosen[1]}%)" if chosen[1] else "")
     
     return "Não disponível"
-
 
 def extrair_dados_dinamico(entradas):
     dados = {
@@ -86,18 +103,18 @@ def extrair_dados_dinamico(entradas):
 
     # --- Regras dinâmicas: campo → regex ---
     regras = {
-        "relative_density": r"(?:Density|Densidade).*?([\d\.,]+ ?g/cm³|[\d\.,]+ a ?\d* ?°C)",
-        "vapor_pressure": r"(?:Vapou?r pressure|Press[aã]o do vapor).*?([\d\.,]+ ?(Pa|mmHg)|negligible.*?\([\w <>\.=]+\))",
-        "water_solubility": r"(?:Solubility.*?water|Solubilidade na [aá]gua).*?(:?miscible|entirely mixable|[\d\.,]+ ?g/l.*?)",
-        "relative_vapor_density": r"(?:Relative vapou?r density|Densidade relativa do g[aá]s).*?([\d\.,]+)",
-        "decomposition_temperature": r"(?:Decomposition temperature|Decomp[oó]e).*?([\d\.,]+ ?°C)",
-        "pH": r"(?:pH).*?([<>\d\.,]+ ?-? ?\d*\.?\d*)",
-        "kinematic_viscosity": r"(?:Viscosity).*?([\d\.,]+ ?mPa\*?s|[\d\.,]+ ?cP)",
-        "partition_coefficient": r"(?:partition|Kow).*?([-\d\.,]+)",
-        "color": r"(colourless|colorless|incol[oó]r|amarelo|marrom|branco)",
-        "odor": r"(odourless|odorless|inodoro|cheiro.*?|odor.*?)",
-        "physical_state": r"(liquid|solid|gas|powder|líquido|sólido|gasoso)"
-    }
+    "relative_density": r"(?:Density|Densidade).*?([\d\.,]+ ?g/(?:cm³|ml)|[\d\.,]+ ?a ?\d* ?°C)",
+    "vapor_pressure": r"(?:Vapou?r pressure|Press[aã]o do vapor).*?([\d\.,]+ ?(Pa|hPa|kPa|mmHg)|negligible.*?\([\w <>\.=]+\))",
+    "water_solubility": r"(?:Solubility.*?water|Solubilidade na [aá]gua).*?(:?miscible|entirely mixable|[\d\.,]+ ?g/(?:l|100ml).*?)",
+    "relative_vapor_density": r"(?:Relative vapou?r density|Densidade relativa do g[aá]s).*?([\d\.,]+)",
+    "decomposition_temperature": r"(?:Decomposition temperature|Decomp[oó]e).*?([>\-]?\s*[\d\.,]+ ?°C)",
+    "pH": r"(?:pH).*?([<>\d\.,]+ ?-? ?\d*\.?\d*)",
+    "kinematic_viscosity": r"(?:Viscosity).*?([\d\.,]+ ?mPa\*?s|[\d\.,]+ ?cP)",
+    "partition_coefficient": r"(?:partition|Kow|Pow).*?([-\d\.,]+)",
+    "color": r"(colourless|colorless|incol[oó]r|amarelo|yellow|marrom|branco|white)",
+    "odor": r"(odourless|odorless|inodoro|cheiro.*?|odor.*?)",  
+    "physical_state": r"(liquid|solid|gas|powder|solution|líquido|sólido|gasoso|solução|aqueous)"
+}
 
     # --- Melting/Boiling com tratamento especial ---
     dados["melting_point"] = extract_property_value(texto_total, "melting_point")
@@ -135,21 +152,38 @@ cas = '7664-93-9' # Sulfurico
 #cas = '7681-52-9' # Hipo
 #cas = '7647-01-0' # HCL
 
-data = getData(cas)
+saida = getData(cas)
 
 entrada1,entrada2,entrada3,entrada4 = [],[],[],[]
 pass
-if data["cetesb"]:
-    entrada1 = data['cetesb'][7]
-if data['icsc']:
-    entrada2 = data['icsc']['td_list'][32] or []
-if data["gestis"]:
-    entrada3 = data['gestis']['PHYSICAL AND CHEMICAL PROPERTIES'] or []
-    entrada4 = data['gestis']['CHARACTERISATION'] or []
+if saida["cetesb"]:
+    entrada1 = saida['cetesb'][7]
+if saida['icsc']:
+    entrada2 = saida['icsc']['td_list'][32] or []
+if saida["gestis"]:
+    entrada4 = saida['gestis']['PHYSICAL AND CHEMICAL PROPERTIES'] or []
+    entrada3 = saida['gestis']['CHARACTERISATION'] or []
 
 
 entradas = [entrada1, entrada2, entrada3, entrada4]
-saida = extrair_dados_dinamico(entradas)
-print('\n')
+saida = translate(extrair_dados_dinamico(entradas))
+
+parts = [p.strip() for p in saida.split(",")]
+
+saida = {}
+current_key = None
+
+for part in parts:
+    if ":" in part:
+        key, value = part.split(":", 1)  # só divide na primeira ocorrência
+        current_key = key.strip()
+        saida[current_key] = value.strip()
+    else:
+        # se não houver ":", provavelmente é continuação da chave anterior
+        if current_key:
+            saida[current_key] += "," + part.strip()
+
+
+print(f'\n---{cas}---')
 for k, v in saida.items():
     print(f"{k}: {v}")

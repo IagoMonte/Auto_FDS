@@ -91,8 +91,7 @@ def add_page_number(paragraph):
     run2._r.append(fldChar2)
     run2._r.append(text_run)
     run2._r.append(fldChar3)
-    
-    
+
 def HeaderGen(document, title):
     doc = document
     header = doc.sections[0].header
