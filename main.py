@@ -13,22 +13,22 @@ client = Cerebras(
 )
 
 def translate(text: str):
-
-    completion_create_response = client.chat.completions.create(
-    messages=[
-        {
-            "role": "system",
-            "content": f"Me responda apenas o texto traduzido em Portugues do Brasil: {text}"
-        }
-    ],
-    model="qwen-3-235b-a22b-instruct-2507",
-    stream=False,
-    max_completion_tokens=2048,
-    temperature=0.2,
-    top_p=1
-    )
-    res = completion_create_response
-    return res.choices[0].message.content
+    if text.strip():
+        completion_create_response = client.chat.completions.create(
+        messages=[
+            {
+                "role": "system",
+                "content": f"Me responda apenas o texto traduzido em Portugues do Brasil: {text}"
+            }
+        ],
+        model="qwen-3-235b-a22b-instruct-2507",
+        stream=False,
+        max_completion_tokens=2048,
+        temperature=0.2,
+        top_p=1
+        )
+        res = completion_create_response
+        return res.choices[0].message.content
 
 
 # def translate(text: str):

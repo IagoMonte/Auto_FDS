@@ -149,8 +149,8 @@ def extrair_dados_dinamico(entradas):
     return dados
 
 
-cas = '7664-93-9' # Sulfurico
-#cas = '7647-14-5' # Sal
+#cas = '7664-93-9' # Sulfurico
+cas = '7647-14-5' # Sal
 #cas = '57-13-6'   # Ureia
 #cas = '7681-52-9' # Hipo
 #cas = '7647-01-0' # HCL
