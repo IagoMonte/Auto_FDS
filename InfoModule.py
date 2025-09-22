@@ -23,7 +23,7 @@ from main import getData, translate
 from Header import HeaderGen
 from pictograms import class_to_pictograms
 from docx import Document
-from Section import mkSec1,mkSec2,mkSec3,mkSec4,mkSec5,mkSec6,mkSec7,mkSec8,mkSec9
+from Section import mkSec1,mkSec2,mkSec3,mkSec4,mkSec5,mkSec6,mkSec7,mkSec8,mkSec9,mkSec10
 
 def extract_property_value(text, prop):
     values = []
@@ -685,6 +685,29 @@ relative_vapor_density = translate(saida['relative_vapor_density'])
 particle_characteristics = translate(saida['particle_characteristics'])
 OtherInfo = translate(saida['OtherInfo'])
 
+#section 10
+
+#'Estabilidade:'
+stability = "Produto estável em condições normais de temperatura e pressão."
+
+#'Reatividade:'
+
+reactivity = "Acetileno e cloreto de alila podem polimerizar-se violentamente na presença de ácido sulfúrico."
+
+#'Possibilidade de reações perigosas:'
+
+possibility_of_dangerous_reactions = "Reage violentamente com materiais combustíveis, redutores, bases, água e materiais orgânicos e é corrosivo para a maioria dos metais comuns. O produto pode inflamar outros materiais combustíveis e reagir perigosamente ou explosivamente com: pentafluoreto de bromo, tetrafluoreto de cloro, ácido clorossulfônico, ácido clorídrico, ácido fluorídrico, heptafluoreto de iodo, nitrato de mercúrio, trihidroxiamino, fosfato de prata, percloratos, ácido perclórico, fósforo, isocianato de fósforo, butóxido de potássio, cloreto de potássio, permanganato de potássio, permanganato de potássio + cloreto de potássio, óxido de propileno, permanganato de prata, carbonato de sódio, cloreto de sódio e cloreto de zinco."
+
+#'Condições a serem evitadas:'
+
+conditions_to_avoid = "Temperaturas elevadas, fonte de ignição e contato com materiais incompatíveis."
+
+#'Materiais incompatíveis:'
+incompatible_materials = "Ácido clorídrico, ácido clorosulfônico, ácido fluorídrico, ácido perclórico, agentes oxidantes, agentes redutores, água, bases, carbonato de sódio, cloratos, cloreto de potássio, cloreto de sódio, cloreto de zinco, fosfato de prata, fósforo, heptafluoreto de iodo, materiais combustíveis, metais, nitratos, óxido de propileno, pentafluoreto de bromo, percloratos, permanganato de potássio, permanganato de prata, substâncias orgânicas e tert-butóxido de potássio."
+
+#'Produtos perigosos da decomposição:'
+
+hazardous_decomposition_products = "A decomposição pode gerar óxidos de enxofre."
 
 doc = HeaderGen(Document(),ProductName)
 mkSec1(doc,ProductName,Uses,ProviderInfo,Emergency)
@@ -700,7 +723,9 @@ mkSec9(doc, physical_state,color,odor,melting_point,boiling_point,
        decomposition_temperature,pH,kinematic_viscosity,water_solubility,
        partition_coefficient,vapor_pressure,relative_density,relative_vapor_density,
        particle_characteristics,OtherInfo)
-
+mkSec10(doc,stability,reactivity,possibility_of_dangerous_reactions,
+        conditions_to_avoid,incompatible_materials,
+        hazardous_decomposition_products)
 
 
 nome_arquivo = f'FDS_{ProductName.replace(" ", "_")}_EN.docx'
