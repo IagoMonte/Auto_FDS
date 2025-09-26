@@ -3,6 +3,7 @@ import Cetesb_Scrap
 import ICSC_Scrap
 from Header import HeaderGen
 from docx import Document
+from Section import mkSec1
 from cerebras.cloud.sdk import Cerebras
 import os
 from dotenv import load_dotenv
@@ -25,7 +26,8 @@ def translate(text: str):
         stream=False,
         max_completion_tokens=2048,
         temperature=0.2,
-        top_p=1
+        top_p=1,
+        seed=1234
         )
         res = completion_create_response
         return res.choices[0].message.content
@@ -48,11 +50,23 @@ def getData(Cas : str):
             'gestis': gestisData}
     return data
 
-if __file__ == 'main':
-    nome_produto = "Ácido Nítrico"
 
-    doc = HeaderGen(Document(),nome_produto)
+# nome_produto = "Ácido Nítrico"
 
-    nome_arquivo = f'FDS_{nome_produto.replace(" ", "_")}.docx'
-    doc.save(nome_arquivo)
-    print(f'Documento \"{nome_arquivo}\" criado com sucesso.')
+# doc = HeaderGen(Document(),nome_produto)
+
+# ProviderInfo ='''
+# PORTUGAL QUÍMICA LTDA.
+
+# Endereço: Av. Marcelo Zanarotti, 465 - Distrito Industrial - Dumont/SP - Brasil - Cep: 14120-000
+# Telefone: +55 16 3844-0999
+# E-mail: portugal@portugalquimica.com.br
+# ''' 
+# Emergency = 'AMBIPAR - 0800-117-2020'
+
+# mkSec1(doc,nome_produto,'aaaaaaa',ProviderInfo,Emergency)
+
+
+# nome_arquivo = f'FDS_{nome_produto.replace(" ", "_")}.docx'
+# doc.save(nome_arquivo)
+# print(f'Documento \"{nome_arquivo}\" criado com sucesso.')

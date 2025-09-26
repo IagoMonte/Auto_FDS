@@ -8,7 +8,7 @@
 # ▐    ▐      ▌   ▐      ▌    ▌
 # ▐▄                         ▄▌
 #  ▐      _____________      ▌ 
-#  ▐▄         ▐   ▌          ▌ █  ███   ████   ████  ████  █████     
+#  ▐▄         ▐   ▌          ▌ █  ███   ████   ████  ████  █████      
 #   ▀▄        ▐▄ ▄▌        ▄▀  █ █   █ █      █    █ █   █   █        
 #     ▀▄       ▀▀▀       ▄▀    █ █████ █   ██ █    █ █   █   █        
 #       ▀▄▄           ▄▄▀      █ █   █ █    █ █    █ █   █   █        
@@ -106,19 +106,28 @@ def extrair_dados_dinamico(entradas):
 
     # --- Regras dinâmicas: campo → regex ---
     regras = {
-    "relative_density": r"(?:Density|Densidade).*?([\d\.,]+ ?g/(?:cm³|ml)|[\d\.,]+ ?a ?\d* ?°C)",
-    "vapor_pressure": r"(?:Vapou?r pressure|Press[aã]o do vapor).*?([\d\.,]+ ?(Pa|hPa|kPa|mmHg)|negligible.*?\([\w <>\.=]+\))",
-    "water_solubility": r"(?:Solubility.*?water|Solubilidade na [aá]gua).*?(:?miscible|entirely mixable|[\d\.,]+ ?g/(?:l|100ml).*?)",
-    "relative_vapor_density": r"(?:Relative vapou?r density|Densidade relativa do g[aá]s).*?([\d\.,]+)",
-    "decomposition_temperature": r"(?:Decomposition temperature|Decomp[oó]e).*?([>\-]?\s*[\d\.,]+ ?°C)",
+    "relative_density": r"(?:Density|Densidade|Specific gravity|Gravidade espec[ií]fica)\s*[:\-]?\s*([\d.,]+\s*g/(?:cm³|ml)|[\d.,]+\s*a\s*\d+\s*°C)",
+    
+    "vapor_pressure": r"(?:Vapou?r pressure|Press[aã]o do vapor|Tensi[oã]o de vapor)\s*[:\-]?\s*([\d.,]+\s*(?:Pa|hPa|kPa|mmHg|bar|atm)|negligible.*?\([\w\s<>=.]+\))",
+    
+    "water_solubility": r"(?:Solubility.*?water|Solubilidade na [aá]gua|Water solubility|Solubilidade em [aá]gua)\s*[:\-]?\s*(miscible|entirely mixable|slightly soluble|insoluble|sparingly soluble|[\d.,]+\s*g/(?:l|100ml|L|kg).*?)",
+    
+    "relative_vapor_density": r"(?:Relative vapou?r density|Densidade relativa do g[aá]s|Gas density|Densidade do vapor)\s*[:\-]?\s*([\d.,]+)",
+    
+    "decomposition_temperature": r"(?:Decomposition temperature|Temperatura de decomposi[cç][aã]o|Decomp[oó]e)\s*[:\-]?\s*([>\-]?\s*[\d.,]+\s*°C)",
+    
     "pH": r"(?:pH).*?([<>\d\.,]+ ?-? ?\d*\.?\d*)",
-    "kinematic_viscosity": r"(?:Viscosity).*?([\d\.,]+ ?mPa\*?s|[\d\.,]+ ?cP)",
-    "partition_coefficient": r"(?:partition|Kow|Pow).*?([-\d\.,]+)",
-    "color": r"(colourless|colorless|incol[oó]r|amarelo|yellow|marrom|branco|white)",
-    "odor": r"(odourless|odorless|inodoro|cheiro.*?|odor.*?)",  
-    "physical_state": r"(liquid|solid|gas|powder|solution|líquido|sólido|gasoso|solução|aqueous)"
+    
+    "kinematic_viscosity": r"(?:Viscosity|Viscosidade|Kinematic viscosity|Viscosidade cinem[aá]tica)\s*[:\-]?\s*([\d.,]+\s*(?:mPa\*?s|cP|mm²/s|centistokes|St))",
+    
+    "partition_coefficient": r"(?:Partition coefficient|Coeficiente de partilh[aã]o|Coeficiente de reparti[cç][aã]o|Kow|Pow|Log ?Kow|LogP)\s*[:\-]?\s*([-\d.,]+)",
+    
+    "color": r"\b(colourless|colorless|incol[oó]r|amarelo|yellow|marrom|brown|vermelho|red|verde|green|azul|blue|preto|black|branco|white|cinza|grey|gray|rosado|pink|violeta|violet|roxo|purple)\b",
+    
+    "odor": r"\b(odourless|odorless|inodoro|sem odor|sem cheiro|cheiro\s*(?:forte|fraco|caracter[ií]stico|pungente)|odor\s*(?:forte|fraco|characteristic|pungent))",
+    
+    "physical_state": r"\b(liquid|solid|gas|powder|solution|paste|gel|slurry|emulsion|suspension|granules?|pellets?|flakes?|crystals?|líquido|sólido|gasoso|p[oó] em|p[oó]|solução|aquoso|aqueous|pasta|gel|lama|emuls[aã]o|suspens[aã]o|gr[aâ]nulos?|pelotas?|flocos?|cristais?)\b",
 }
-
     # --- Melting/Boiling com tratamento especial ---
     dados["melting_point"] = extract_property_value(texto_total, "melting_point")
     dados["boiling_point"] = extract_property_value(texto_total, "boiling_point")
@@ -139,7 +148,28 @@ def extrair_dados_dinamico(entradas):
 
     # --- Preenche OtherInfo com termos relevantes ---
     extras = []
-    palavras_chave = ["viscous", "hygroscopic", "oxidizing", "ácido", "não volátil", "not volatile", "reacts", "decomposes"]
+    
+    palavras_chave = [
+    # físico-químicas gerais
+    "viscous", "hygroscopic", "oxidizing", "reducing", "corrosive", 
+    "inflam", "flammable", "combust", "explosive", "pyrophoric",
+    "ácido", "básico", "alcalino", "caustic",
+    "não volátil", "not volatile", "volatile", "evapora", "sublimes", "sublima",
+    "reacts", "decomposes", "unstable", "instável",
+    
+    # propriedades de solubilidade/absorção
+    "insoluble", "slightly soluble", "miscible", "immiscible",
+    "soluble", "sparingly soluble", "absorbs moisture", "deliquescent",
+
+    # estabilidade/reação
+    "reactive", "polymerizes", "polymerisable", "incompatible",
+    "oxidant", "oxidiser", "reducing agent",
+
+    # outras descrições úteis
+    "toxic", "harmful", "irritant", "allergenic",
+    "odorless", "odourless", "sem odor", "inodoro",
+    "colored", "coloured", "colored liquid", "unstable when heated",
+]
     for linha in textos:
         if any(x in linha.lower() for x in palavras_chave):
             extras.append(linha.strip())
@@ -148,12 +178,11 @@ def extrair_dados_dinamico(entradas):
 
     return dados
 
-
-#cas = '7664-93-9' # Sulfurico
-cas = '7647-14-5' # Sal
-#cas = '57-13-6'   # Ureia
-#cas = '7681-52-9' # Hipo
 #cas = '7647-01-0' # HCL
+#cas = '7664-93-9' # Sulfurico
+#cas = '7647-14-5' # Sal
+#cas = '7681-52-9' # Hipo
+cas = '57-13-6'   # Ureia
 
 data = getData(cas)
 
@@ -405,12 +434,13 @@ if data['icsc']:
             'Contato com os olhos': translate(data['icsc']['td_list'][15].text.replace('\xa0', ' ')),
             'Ingestão': translate(data['icsc']['td_list'][18].text.replace('\xa0', ' '))
         }
-    after = "\n".join(f"{label}: {desc}" for label, desc in symptoms.items() if desc.strip())
+    after = "\n".join(f"{label}: {desc}" for label, desc in symptoms.items() if desc is not None and desc.strip())
+
 
 doctor = '''Ao prestar socorro, proteja-se para evitar contato com a substância causadora do dano. O tratamento deve focar em aliviar os sintomas e garantir o suporte das funções vitais, como repor fluidos e eletrólitos, corrigir problemas metabólicos e, se necessário, auxiliar na respiração. Em caso de contato com a pele, evite esfregar a área afetada.'''
-#Section 5
+#Section 5  
 #Meios de extinção:
-extinction = ''
+extinction =     ''
 if data.get('gestis') and data['gestis'].get('SAFE HANDLING'):
     safe_handling_list = data['gestis']['SAFE HANDLING']
     fire_fighting_text = None
@@ -685,29 +715,47 @@ relative_vapor_density = translate(saida['relative_vapor_density'])
 particle_characteristics = translate(saida['particle_characteristics'])
 OtherInfo = translate(saida['OtherInfo'])
 
-#section 10
 
-#'Estabilidade:'
-stability = "Produto estável em condições normais de temperatura e pressão."
+stability = "Produto estável em condições normais de temperatura e pressão."#always
+possibility_of_dangerous_reactions = "Pode Reagir de forma perigosa com materiais combustíveis" # always 
+conditions_to_avoid = "Temperaturas elevadas, fonte de ignição e contato com materiais incompatíveis." #always
+if data['gestis'] and data['gestis']['SAFE HANDLING']:
+    props = data.get("PHYSICAL AND CHEMICAL PROPERTIES", [])
+    text = ""
+    for item in props:
+        if "HAZARDOUS REACTIONS" in item.get("text", ""):
+            text = item["text"]
+            break
+    polimerizacao = re.search(r"polymerize in contact with:\s*(.+?)(?:The|$)", text, re.IGNORECASE | re.DOTALL)
+    if polimerizacao:
+        p = polimerizacao.group(1).strip()
+        reactivity = translate(f"O produto pode polimerizar em contato com: {p.rstrip('.')}.")
+    else:
+        reactivity = "Não sofre polimerização perigosa."
 
-#'Reatividade:'
+    partes = []
 
-reactivity = "Acetileno e cloreto de alila podem polimerizar-se violentamente na presença de ácido sulfúrico."
+    explosao = re.search(r"Risk of explosion.*?:\s*(.+?)(?:The|$)", text, re.IGNORECASE | re.DOTALL)
+    if explosao:
+        risco = explosao.group(1).strip()
+        risco = re.sub(r"\s+", " ", risco)
+        partes.append(f"Há risco de explosão em contato com: {risco.rstrip('.')}.")
 
-#'Possibilidade de reações perigosas:'
+    reacoes = re.search(r"react dangerously with:\s*(.+?)(?:The|$)", text, re.IGNORECASE | re.DOTALL)
+    if reacoes:
+        r = reacoes.group(1).strip()
+        r = re.sub(r"\s+", " ", r)
+        partes.append(f"Pode reagir perigosamente com: {r.rstrip('.')}.")
 
-possibility_of_dangerous_reactions = "Reage violentamente com materiais combustíveis, redutores, bases, água e materiais orgânicos e é corrosivo para a maioria dos metais comuns. O produto pode inflamar outros materiais combustíveis e reagir perigosamente ou explosivamente com: pentafluoreto de bromo, tetrafluoreto de cloro, ácido clorossulfônico, ácido clorídrico, ácido fluorídrico, heptafluoreto de iodo, nitrato de mercúrio, trihidroxiamino, fosfato de prata, percloratos, ácido perclórico, fósforo, isocianato de fósforo, butóxido de potássio, cloreto de potássio, permanganato de potássio, permanganato de potássio + cloreto de potássio, óxido de propileno, permanganato de prata, carbonato de sódio, cloreto de sódio e cloreto de zinco."
+    if len(partes) > 0:
+        incompatible_materials = translate(" ".join(partes))
+    else:
+        incompatible_materials = 'Não '
 
-#'Condições a serem evitadas:'
-
-conditions_to_avoid = "Temperaturas elevadas, fonte de ignição e contato com materiais incompatíveis."
-
-#'Materiais incompatíveis:'
-incompatible_materials = "Ácido clorídrico, ácido clorosulfônico, ácido fluorídrico, ácido perclórico, agentes oxidantes, agentes redutores, água, bases, carbonato de sódio, cloratos, cloreto de potássio, cloreto de sódio, cloreto de zinco, fosfato de prata, fósforo, heptafluoreto de iodo, materiais combustíveis, metais, nitratos, óxido de propileno, pentafluoreto de bromo, percloratos, permanganato de potássio, permanganato de prata, substâncias orgânicas e tert-butóxido de potássio."
-
+    
 #'Produtos perigosos da decomposição:'
 
-hazardous_decomposition_products = "A decomposição pode gerar óxidos de enxofre."
+hazardous_decomposition_products = "Não disponivel"
 
 doc = HeaderGen(Document(),ProductName)
 mkSec1(doc,ProductName,Uses,ProviderInfo,Emergency)
