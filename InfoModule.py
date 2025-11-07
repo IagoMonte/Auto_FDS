@@ -15,174 +15,20 @@
 #          ▀▄▄▄▄▄▄▄▄▄▀         █ █   █  ████   ████  ████    █        
 #                                                 
 
-
-
 import re
-from bs4 import BeautifulSoup
 from main import getData, translate
+from teste import extrair_dados_dinamico as Extract9sec
+from ExtratorSec10 import otherInfoSort
 from Header import HeaderGen
 from pictograms import class_to_pictograms
 from docx import Document
 from Section import mkSec1,mkSec2,mkSec3,mkSec4,mkSec5,mkSec6,mkSec7,mkSec8,mkSec9,mkSec10
 
-def extract_property_value(text, prop):
-    values = []
-    
-    if prop == "melting_point":
-        matches = re.findall(r"Melting point:\s*([\-\d,\.]+)\s*°C(?:.*?(\d+)\s*%)?", text, flags=re.I)
-        for val, purity in matches:
-            try:
-                val_num = float(val.replace(",", "."))
-            except:
-                continue
-            values.append((val_num, purity if purity else None))
-        if not values:
-            return "Não disponível"
-        # Priorizar pureza 100%, senão maior pureza, senão menor valor
-        values.sort(key=lambda x: (-(int(x[1]) if x[1] else 0), x[0]))
-        chosen = values[0]
-        return f"{chosen[0]} °C" + (f" ({chosen[1]}%)" if chosen[1] else "")
-    
-    if prop == "boiling_point":
-        matches = re.findall(r"Boiling Point:\s*(?:ca\.\s*)?([\-\d,\.]+)\s*°C(?:.*?(\d+)\s*%)?", text, flags=re.I)
-        for val, purity in matches:
-            try:
-                val_num = float(val.replace(",", "."))
-            except:
-                continue
-            values.append((val_num, purity if purity else None))
-        if not values:
-            return "Não disponível"
-        # Priorizar pureza 100%, senão maior pureza, senão maior valor
-        values.sort(key=lambda x: (-(int(x[1]) if x[1] else 0), -x[0]))
-        chosen = values[0]
-        return f"{chosen[0]} °C" + (f" ({chosen[1]}%)" if chosen[1] else "")
-    
-    return "Não disponível"
-
-def extrair_dados_dinamico(entradas):
-    dados = {
-        "physical_state": "Não disponível",
-        "color": "Não disponível",
-        "odor": "Não disponível",
-        "melting_point": "Não disponível",
-        "boiling_point": "Não disponível",
-        "flammability": "Não disponível",
-        "explosive_limit": "Não disponível",
-        "flash_point": "Não disponível",
-        "auto_ignition_temperature": "Não disponível",
-        "decomposition_temperature": "Não disponível",
-        "pH": "Não disponível",
-        "kinematic_viscosity": "Não disponível",
-        "water_solubility": "Não disponível",
-        "partition_coefficient": "Não disponível",
-        "vapor_pressure": "Não disponível",
-        "relative_density": "Não disponível",
-        "relative_vapor_density": "Não disponível",
-        "particle_characteristics": "Não disponível",
-        "OtherInfo": ""
-    }
-
-    # --- Normaliza entradas (html, listas, dicts, números soltos) ---
-    textos = []
-    for e in entradas:
-        if isinstance(e, dict) and "text" in e:
-            textos.append(e["text"])
-        elif isinstance(e, str):  # pode ser HTML
-            soup = BeautifulSoup(e, "html.parser")
-            textos.append(soup.get_text(" "))
-        elif isinstance(e, list):
-            for sub in e:
-                if isinstance(sub, str):
-                    textos.append(sub)
-                elif isinstance(sub, list):
-                    textos.extend(sub)
-                elif isinstance(sub, dict) and "text" in sub:
-                    textos.append(sub["text"])
-        elif isinstance(e, (int, float)):
-            textos.append(str(e))
-
-    texto_total = " ".join(textos)
-
-    # --- Regras dinâmicas: campo → regex ---
-    regras = {
-    "relative_density": r"(?:Density|Densidade|Specific gravity|Gravidade espec[ií]fica)\s*[:\-]?\s*([\d.,]+\s*g/(?:cm³|ml)|[\d.,]+\s*a\s*\d+\s*°C)",
-    
-    "vapor_pressure": r"(?:Vapou?r pressure|Press[aã]o do vapor|Tensi[oã]o de vapor)\s*[:\-]?\s*([\d.,]+\s*(?:Pa|hPa|kPa|mmHg|bar|atm)|negligible.*?\([\w\s<>=.]+\))",
-    
-    "water_solubility": r"(?:Solubility.*?water|Solubilidade na [aá]gua|Water solubility|Solubilidade em [aá]gua)\s*[:\-]?\s*(miscible|entirely mixable|slightly soluble|insoluble|sparingly soluble|[\d.,]+\s*g/(?:l|100ml|L|kg).*?)",
-    
-    "relative_vapor_density": r"(?:Relative vapou?r density|Densidade relativa do g[aá]s|Gas density|Densidade do vapor)\s*[:\-]?\s*([\d.,]+)",
-    
-    "decomposition_temperature": r"(?:Decomposition temperature|Temperatura de decomposi[cç][aã]o|Decomp[oó]e)\s*[:\-]?\s*([>\-]?\s*[\d.,]+\s*°C)",
-    
-    "pH": r"(?:pH).*?([<>\d\.,]+ ?-? ?\d*\.?\d*)",
-    
-    "kinematic_viscosity": r"(?:Viscosity|Viscosidade|Kinematic viscosity|Viscosidade cinem[aá]tica)\s*[:\-]?\s*([\d.,]+\s*(?:mPa\*?s|cP|mm²/s|centistokes|St))",
-    
-    "partition_coefficient": r"(?:Partition coefficient|Coeficiente de partilh[aã]o|Coeficiente de reparti[cç][aã]o|Kow|Pow|Log ?Kow|LogP)\s*[:\-]?\s*([-\d.,]+)",
-    
-    "color": r"\b(colourless|colorless|incol[oó]r|amarelo|yellow|marrom|brown|vermelho|red|verde|green|azul|blue|preto|black|branco|white|cinza|grey|gray|rosado|pink|violeta|violet|roxo|purple)\b",
-    
-    "odor": r"\b(odourless|odorless|inodoro|sem odor|sem cheiro|cheiro\s*(?:forte|fraco|caracter[ií]stico|pungente)|odor\s*(?:forte|fraco|characteristic|pungent))",
-    
-    "physical_state": r"\b(liquid|solid|gas|powder|solution|paste|gel|slurry|emulsion|suspension|granules?|pellets?|flakes?|crystals?|líquido|sólido|gasoso|p[oó] em|p[oó]|solução|aquoso|aqueous|pasta|gel|lama|emuls[aã]o|suspens[aã]o|gr[aâ]nulos?|pelotas?|flocos?|cristais?)\b",
-}
-    # --- Melting/Boiling com tratamento especial ---
-    dados["melting_point"] = extract_property_value(texto_total, "melting_point")
-    dados["boiling_point"] = extract_property_value(texto_total, "boiling_point")
-
-    # --- Aplicar regras para os demais ---
-    for campo, padrao in regras.items():
-        if dados[campo] != "Não disponível":
-            continue  # já preenchido
-        match = re.search(padrao, texto_total, flags=re.IGNORECASE)
-        if match:
-            dados[campo] = match.group(1).strip()
-
-    # --- Detecta inflamabilidade de forma semântica ---
-    if re.search(r"non-?combustible|não inflamável|not flammable", texto_total, flags=re.IGNORECASE):
-        dados["flammability"] = "Não inflamável"
-    elif re.search(r"flammable|inflamável|combustible", texto_total, flags=re.IGNORECASE):
-        dados["flammability"] = "Inflamável"
-
-    # --- Preenche OtherInfo com termos relevantes ---
-    extras = []
-    
-    palavras_chave = [
-    # físico-químicas gerais
-    "viscous", "hygroscopic", "oxidizing", "reducing", "corrosive", 
-    "inflam", "flammable", "combust", "explosive", "pyrophoric",
-    "ácido", "básico", "alcalino", "caustic",
-    "não volátil", "not volatile", "volatile", "evapora", "sublimes", "sublima",
-    "reacts", "decomposes", "unstable", "instável",
-    
-    # propriedades de solubilidade/absorção
-    "insoluble", "slightly soluble", "miscible", "immiscible",
-    "soluble", "sparingly soluble", "absorbs moisture", "deliquescent",
-
-    # estabilidade/reação
-    "reactive", "polymerizes", "polymerisable", "incompatible",
-    "oxidant", "oxidiser", "reducing agent",
-
-    # outras descrições úteis
-    "toxic", "harmful", "irritant", "allergenic",
-    "odorless", "odourless", "sem odor", "inodoro",
-    "colored", "coloured", "colored liquid", "unstable when heated",
-]
-    for linha in textos:
-        if any(x in linha.lower() for x in palavras_chave):
-            extras.append(linha.strip())
-    if extras:
-        dados["OtherInfo"] = "\n".join(set(extras))
-
-    return dados
-
-#cas = '7647-01-0' # HCL
+cas = '7647-01-0' # HCL
 #cas = '7664-93-9' # Sulfurico
 #cas = '7647-14-5' # Sal
 #cas = '7681-52-9' # Hipo
-cas = '57-13-6'   # Ureia
+#cas = '57-13-6'   # Ureia
 
 data = getData(cas)
 
@@ -693,32 +539,33 @@ if data["gestis"]:
 
 
 entradas = [entrada1, entrada2, entrada3, entrada4]
-saida = extrair_dados_dinamico(entradas)
+saida = Extract9sec(entradas)
 
 physical_state = translate(saida["physical_state"])
 color = translate(saida['color'])
 odor = translate(saida['odor'])
-melting_point = translate(saida['melting_point'])
-boiling_point = translate(saida['boiling_point'])
-flammability = translate(saida['flammability'])
-explosive_limit = translate(saida['explosive_limit'])
-flash_point = translate(saida['flash_point'])
-auto_ignition_temperature = translate(saida['auto_ignition_temperature'])
-decomposition_temperature = translate(saida['decomposition_temperature'])
-pH = translate(saida['pH'])
-kinematic_viscosity = translate(saida['kinematic_viscosity'])
-water_solubility = translate(saida['water_solubility'])
-partition_coefficient = translate(saida['partition_coefficient'])
-vapor_pressure = translate(saida['vapor_pressure'])
-relative_density = translate(saida['relative_density'])
-relative_vapor_density = translate(saida['relative_vapor_density'])
-particle_characteristics = translate(saida['particle_characteristics'])
+melting_point = saida['melting_point']
+boiling_point = saida['boiling_point']
+flammability = saida['flammability']
+explosive_limit = f'''Limite superior:{saida["explosive_limit_upper"] } \n Limite inferior:{saida["explosive_limit_lower"]}'''
+flash_point = saida['flash_point']
+auto_ignition_temperature = saida['auto_ignition_temperature']
+decomposition_temperature = saida['decomposition_temperature']
+pH = saida['pH']
+kinematic_viscosity = saida['kinematic_viscosity']
+water_solubility = saida['water_solubility']
+partition_coefficient = saida['partition_coefficient']
+vapor_pressure = saida['vapor_pressure']
+relative_density = saida['relative_density']
+relative_vapor_density = saida['relative_vapor_density']
+particle_characteristics = saida['particle_characteristics']
 OtherInfo = translate(saida['OtherInfo'])
 
 
 stability = "Produto estável em condições normais de temperatura e pressão."#always
 possibility_of_dangerous_reactions = "Pode Reagir de forma perigosa com materiais combustíveis" # always 
 conditions_to_avoid = "Temperaturas elevadas, fonte de ignição e contato com materiais incompatíveis." #always
+hazardous_decomposition_products = 'Não disponivel'
 if data['gestis'] and data['gestis']['SAFE HANDLING']:
     props = data.get("PHYSICAL AND CHEMICAL PROPERTIES", [])
     text = ""
@@ -731,7 +578,7 @@ if data['gestis'] and data['gestis']['SAFE HANDLING']:
         p = polimerizacao.group(1).strip()
         reactivity = translate(f"O produto pode polimerizar em contato com: {p.rstrip('.')}.")
     else:
-        reactivity = "Não sofre polimerização perigosa."
+        reactivity = "Não disponivel"
 
     partes = []
 
@@ -750,12 +597,27 @@ if data['gestis'] and data['gestis']['SAFE HANDLING']:
     if len(partes) > 0:
         incompatible_materials = translate(" ".join(partes))
     else:
-        incompatible_materials = 'Não '
+        incompatible_materials = 'Não disponivel'
 
-    
 #'Produtos perigosos da decomposição:'
 
-hazardous_decomposition_products = "Não disponivel"
+
+other_info_sorted = otherInfoSort(OtherInfo)
+
+if other_info_sorted['Reatividade'][0].strip():
+    reactivity = other_info_sorted['Reatividade'][0]
+
+if other_info_sorted['Produtos perigosos da decomposição'][0].strip():
+    hazardous_decomposition_products = other_info_sorted['Produtos perigosos da decomposição'][0]
+
+if other_info_sorted['Possibilidade de reações perigosas'][0].strip():
+    possibility_of_dangerous_reactions = other_info_sorted['Possibilidade de reações perigosas'][0]
+
+if other_info_sorted['Condições a serem evitadas'][0].strip():
+    conditions_to_avoid = other_info_sorted['Condições a serem evitadas'][0]
+
+if other_info_sorted['Materiais incompatíveis'][0].strip():
+    incompatible_materials = other_info_sorted['Materiais incompatíveis'][0]
 
 doc = HeaderGen(Document(),ProductName)
 mkSec1(doc,ProductName,Uses,ProviderInfo,Emergency)
@@ -776,5 +638,5 @@ mkSec10(doc,stability,reactivity,possibility_of_dangerous_reactions,
         hazardous_decomposition_products)
 
 
-nome_arquivo = f'FDS_{ProductName.replace(" ", "_")}_EN.docx'
+nome_arquivo = f'FDS_{ProductName.replace(" ", "_")}_teste.docx'
 doc.save(nome_arquivo)

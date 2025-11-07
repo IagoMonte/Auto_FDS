@@ -1,3 +1,20 @@
+#           ▄▄▄▄▄▄▄▄▄          
+#        ▄▄▀         ▀▄▄       
+#      ▄▀               ▀▄     
+#    ▄▀                   ▀▄   
+#  ▐▀     ▄▄         ▄▄     ▀▌ 
+#  ▐    ▐▀  ▀▌     ▐▀  ▀▌    ▌ 
+# ▐▀   ▐▀    ▀▌   ▐▀    ▀▌   ▀▌
+# ▐    ▐      ▌   ▐      ▌    ▌
+# ▐▄                         ▄▌
+#  ▐      _____________      ▌ 
+#  ▐▄         ▐   ▌          ▌ █  ███   ████   ████  ████  █████      
+#   ▀▄        ▐▄ ▄▌        ▄▀  █ █   █ █      █    █ █   █   █        
+#     ▀▄       ▀▀▀       ▄▀    █ █████ █   ██ █    █ █   █   █        
+#       ▀▄▄           ▄▄▀      █ █   █ █    █ █    █ █   █   █        
+#          ▀▄▄▄▄▄▄▄▄▄▀         █ █   █  ████   ████  ████    █        
+#                                                 
+
 import Gestis_Scrap
 import Cetesb_Scrap
 import ICSC_Scrap
@@ -6,6 +23,7 @@ from docx import Document
 from Section import mkSec1
 from cerebras.cloud.sdk import Cerebras
 import os
+import json
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -48,6 +66,11 @@ def getData(Cas : str):
     data = {'cetesb': cetesbData,
             'icsc': icscData,
             'gestis': gestisData}
+
+    filename = f"{Cas}DATA.txt"
+    with open(filename, 'w', encoding='utf-8') as f:
+        f.write(str(data))
+
     return data
 
 

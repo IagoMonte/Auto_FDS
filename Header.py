@@ -1,3 +1,20 @@
+#           ▄▄▄▄▄▄▄▄▄          
+#        ▄▄▀         ▀▄▄       
+#      ▄▀               ▀▄     
+#    ▄▀                   ▀▄   
+#  ▐▀     ▄▄         ▄▄     ▀▌ 
+#  ▐    ▐▀  ▀▌     ▐▀  ▀▌    ▌ 
+# ▐▀   ▐▀    ▀▌   ▐▀    ▀▌   ▀▌
+# ▐    ▐      ▌   ▐      ▌    ▌
+# ▐▄                         ▄▌
+#  ▐      _____________      ▌ 
+#  ▐▄         ▐   ▌          ▌ █  ███   ████   ████  ████  █████      
+#   ▀▄        ▐▄ ▄▌        ▄▀  █ █   █ █      █    █ █   █   █        
+#     ▀▄       ▀▀▀       ▄▀    █ █████ █   ██ █    █ █   █   █        
+#       ▀▄▄           ▄▄▀      █ █   █ █    █ █    █ █   █   █        
+#          ▀▄▄▄▄▄▄▄▄▄▀         █ █   █  ████   ████  ████    █        
+#                                                 
+
 from docx.enum.table import WD_ALIGN_VERTICAL, WD_TABLE_ALIGNMENT
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Inches, Pt
