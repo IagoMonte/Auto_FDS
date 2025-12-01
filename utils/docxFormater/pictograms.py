@@ -91,4 +91,4 @@ def classToPictograms(classifications: str):
 
     paths = [os.path.join('./Pictos', f"{ghs}.png") for ghs in sorted(pictograms)]
     if paths != []:
-        return mergepictograns(paths, outputPath="./Pictos/pictogramas_combinados.png")
+        return mergepictograns(paths, outputPath="./Pictos/pictogramasCombinados.png")
