@@ -11,7 +11,7 @@ def getData(Cas: str):
     data = {
         'CAS'   : Cas,
         'cetesb': cetesbData,
-        'icsc'  : gestisData,
-        'gestis': icscData
+        'icsc'  : icscData,
+        'gestis': gestisData
     }
     return data

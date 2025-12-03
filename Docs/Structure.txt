@@ -17,6 +17,7 @@ seu_projeto/
 │   └── watermark.png
 └── utils/
 │   ├── __init__.py
+│   ├── translator.py
 │   ├── data/
 │   │   ├── __init__.py
 │   │   ├── cetesbScrap.py
@@ -30,6 +31,8 @@ seu_projeto/
 │   │   ├── easySections.py
 │   │   ├── header.py
 │   │   └── pictograms.py
-│   ├── translator.py
 │   └── sections/
+│   │   ├── __init__.py
+│   │   ├── sec1.py
+
 └── README.md

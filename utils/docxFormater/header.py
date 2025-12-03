@@ -1,6 +1,7 @@
 from docx.enum.table import WD_ALIGN_VERTICAL, WD_TABLE_ALIGNMENT
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Inches, Pt
+from docx import Document
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 
@@ -18,7 +19,8 @@ def addPageNumber(paragraph):
     paragraph.add_run(" de ").bold = True; paragraph.runs[-1].font.name = "Arial"; paragraph.runs[-1].font.size = Pt(12)
     run2 = paragraph.add_run(); run2.bold = True; run2.font.name = "Arial"; run2.font.size = Pt(12); createFieldRun(run2, "NUMPAGES")
 
-def HeaderGen(document, title):
+def HeaderGen(title):
+    document = Document()
     header = document.sections[0].header
     table = header.add_table(rows=4, cols=5, width=Pt(90))
     table.style = 'Table Grid'; table.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -37,9 +39,10 @@ def HeaderGen(document, title):
 
     titleCell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
     pTitle = titleCell.paragraphs[0]; pTitle.text = f"FDS - {title}\t"; pTitle.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    pTitle.runs[0].font.update(bold=True, size=Pt(18), name="Arial")
+    pTitle.runs[0].font.bold=True
+    pTitle.runs[0].font.size=Pt(18)
+    pTitle.runs[0].font.name = "Arial"
     
-
     rCells = [
         ('FOR-40', table.cell(0, 4)),
         ('Revisao: 01', table.cell(1, 4)),
@@ -49,7 +52,9 @@ def HeaderGen(document, title):
     for text, cell in rCells:
         cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
         p = cell.add_paragraph(text); p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        p.runs[0].font.update(bold=True, size=Pt(12), name="Arial")
+        p.runs[0].font.bold=True
+        p.runs[0].font.size=Pt(12)
+        p.runs[0].font.name="Arial"
     
     page_cell = table.cell(3, 4); page_cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
     addPageNumber(page_cell.add_paragraph())

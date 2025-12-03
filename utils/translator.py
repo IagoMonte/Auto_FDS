@@ -1,11 +1,15 @@
 import asyncio, copy, re,os
-from groq import RateLimitError,AsyncGroq
+from groq import RateLimitError,AsyncGroq, Groq
 from dotenv import load_dotenv
-from cerebras.cloud.sdk import AsyncCerebras
+from cerebras.cloud.sdk import AsyncCerebras, Cerebras
 
 load_dotenv()
-groqClient = AsyncGroq(api_key=os.environ.get('GROQ_API_KEY'))   
-cerebrasClient = AsyncCerebras(api_key=os.environ.get("CEREBRAS_API_KEY"))
+groqClientAsync = AsyncGroq(api_key=os.environ.get('GROQ_API_KEY'))   
+cerebrasClientAsync = AsyncCerebras(api_key=os.environ.get("CEREBRAS_API_KEY"))
+
+groqClient = Groq(api_key=os.environ.get('GROQ_API_KEY'))   
+cerebrasClient = Cerebras(api_key=os.environ.get("CEREBRAS_API_KEY"))
+
 
 DELIMITER = "\n<<<SPLIT_HERE>>>\n"
 DELIMITER_PATTERN = r"\s*<<<SPLIT_HERE>>>\s*"
@@ -15,7 +19,7 @@ MAX_TOKENS_PER_TEXT = 3000
 
 async def aiTranslate(text: str):
     try:
-        response = await cerebrasClient.chat.completions.create(
+        response = await cerebrasClientAsync.chat.completions.create(
             messages=[{
                 "role": "user",
                 "content": f"Traduza para Português do Brasil mantendo EXATAMENTE a mesma formatação, se houver o separador <<<SPLIT_HERE>>> no texto, mantenha-o EXATAMENTE como está. Retorne APENAS o texto traduzido:\n\n{text}"
@@ -32,7 +36,7 @@ async def aiTranslate(text: str):
     except Exception as e:
         while True:
             try:
-                response = await groqClient.chat.completions.create(
+                response = await groqClientAsync.chat.completions.create(
                     messages=[{
                         "role": "user",
                         "content": f"Traduza para Português do Brasil mantendo EXATAMENTE a mesma formatação, se houver o separador <<<SPLIT_HERE>>> no texto, mantenha-o EXATAMENTE como está. Retorne APENAS o texto traduzido:\n\n{text}"
@@ -146,3 +150,34 @@ async def translateData(data):
             translatedData['gestis'][key][subIdx][field] = translated
     
     return translatedData
+
+def translateText(text:str):
+    try:
+        response = cerebrasClient.chat.completions.create(
+            messages=[{
+                "role": "user",
+                "content": f"Me responda apenas o texto traduzido em Portugues do Brasil: {text}"
+            }],
+            model="qwen-3-235b-a22b-instruct-2507",
+            stream=False,
+            temperature=0.2,
+            top_p=1,
+            seed=1234
+        )
+        result = response.choices[0].message.content
+        return result
+    
+    except Exception as e:
+        response = groqClient.chat.completions.create(
+            messages=[{
+                "role": "user",
+                "content": f"Me responda apenas o texto traduzido em Portugues do Brasil: {text}"
+            }],
+            model='moonshotai/kimi-k2-instruct-0905',
+            stream=False,
+            temperature=0.2,
+            top_p=1,
+            seed=1234,
+        )
+        result = response.choices[0].message.content
+        return result
