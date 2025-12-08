@@ -3,7 +3,7 @@ from utils.translator import translateText
 import re
 
 
-def infoget(data: str):
+def infoGet(data: str):
     ProductName = 'Não disponível'
     ProviderInfo ='''
     PORTUGAL QUÍMICA LTDA.
@@ -42,5 +42,5 @@ def infoget(data: str):
     return ProductName, Uses, ProviderInfo, Emergency 
 
 def generate(Document,data:str):
-    ProductName, Uses, ProviderInfo, Emergency = infoget(data) 
+    ProductName, Uses, ProviderInfo, Emergency = infoGet(data) 
     mkSec1(Document, ProductName, Uses, ProviderInfo, Emergency)

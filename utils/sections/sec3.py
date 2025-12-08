@@ -2,7 +2,7 @@ from utils.translator import translateText
 import utils.sections.sec1 as sc1
 from utils.docxFormater.easySections import mkSec3
 
-def infoget(data:dict):
+def infoGet(data:dict):
     subOrMix = 'SUBSTÂNCIA'#Always
     impure = 'Não apresenta impurezas que contribuam para o perigo.'#Always
     
@@ -20,6 +20,6 @@ def infoget(data:dict):
     
 
 def generate(Document,data:dict):
-    subOrMix,synonym,impure = infoget(data)
-    mkSec3(Document,subOrMix,sc1.infoget(data)[0],synonym,data['CAS'],impure)
+    subOrMix,synonym,impure = infoGet(data)
+    mkSec3(Document,subOrMix,sc1.infoGet(data)[0],synonym,data['CAS'],impure)
     pass

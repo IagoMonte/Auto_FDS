@@ -3,7 +3,7 @@ from utils.docxFormater.pictograms import classToPictograms
 from utils.translator import translateText
 import re
 
-def getinfo(data:dict):
+def infoGet(data:dict):
     Classfication='''Produto não perigoso'''
     #gestis
     if data['gestis']:
@@ -95,5 +95,5 @@ def getinfo(data:dict):
     return Classfication,ClassSystem,OtherDangerous,PictoPath,pictoWidth,pictoHeight,warningWord,warningPhrases,worryPhrases
 
 def generate(Document,data:dict):
-    Classfication,ClassSystem,OtherDangerous,PictoPath,pictoWidth,pictoHeight,warningWord,warningPhrases,worryPhrases = getinfo(data)
+    Classfication,ClassSystem,OtherDangerous,PictoPath,pictoWidth,pictoHeight,warningWord,warningPhrases,worryPhrases = infoGet(data)
     mkSec2(Document,Classfication,ClassSystem,OtherDangerous,PictoPath,pictoWidth,pictoHeight,warningWord,warningPhrases,worryPhrases)
