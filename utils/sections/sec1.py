@@ -1,9 +1,16 @@
 from utils.docxFormater.easySections import mkSec1
 from utils.translator import translateText
+from dataclasses import dataclass
 import re
 
+@dataclass
+class secOneInfo:
+    ProductName : str
+    Uses: str    
+    ProviderInfo: str
+    Emergency: str
 
-def infoGet(data: str):
+def infoGet(data: str) ->secOneInfo:
     ProductName = 'Não disponível'
     ProviderInfo ='''
     PORTUGAL QUÍMICA LTDA.
@@ -39,8 +46,12 @@ def infoGet(data: str):
     if data['cetesb'] != []:
         Uses = data['cetesb'][1][3][0][4::]
     
-    return ProductName, Uses, ProviderInfo, Emergency 
+    return secOneInfo(
+        ProductName = ProductName,
+        Uses = Uses,
+        ProviderInfo = ProviderInfo,
+        Emergency = Emergency
+    )
 
-def generate(Document,data:str):
-    ProductName, Uses, ProviderInfo, Emergency = infoGet(data) 
-    mkSec1(Document, ProductName, Uses, ProviderInfo, Emergency)
+def generate(Document,info:secOneInfo):
+    mkSec1(Document, info.ProductName, info.Uses, info.ProviderInfo, info.Emergency)

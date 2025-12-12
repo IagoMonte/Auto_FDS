@@ -1,99 +1,122 @@
 from utils.docxFormater.easySections import mkSec2
 from utils.docxFormater.pictograms import classToPictograms
 from utils.translator import translateText
+from dataclasses import dataclass
 import re
 
-def infoGet(data:dict):
-    Classfication='''Produto não perigoso'''
-    #gestis
-    if data['gestis']:
-        text = data['gestis']['REGULATIONS'][0]['text']
-        match = re.search(r'Classification\s+(.*?)\s+Signal Word', text, re.DOTALL)
-        classificationGestis = match.group(1).strip() if match else ""
-        classificationClean = re.sub(r'H\d{3}\s*', '\n', classificationGestis)
-        lines = [line.strip().rstrip(';') + ';' for line in classificationClean.split('\n') if line.strip()]
-        ClassficationGestis = "\n".join(lines)
+@dataclass
+class secTwoInfo:
+    Classification: str
+    ClassSystem:str
+    OtherDangerous:str
+    PictoPath:str
+    pictoWidth:int
+    pictoHeight:int
+    warningWord:str
+    warningPhrases:str
+    worryPhrases:str
 
-        if ClassficationGestis != '':
-            Classfication = translateText(ClassficationGestis)
+
+DEFAULT_TEXT = "Não disponível"
+DEFAULT_CLASS = "Produto não perigoso"
+CLASS_SYSTEM = "Norma ABNT-NBR 14725-2023.\nSistema Globalmente Harmonizado para a Classificação e Rotulagem de Produtos Químicos, ONU."
+OTHER_DANGEROUS = "Não são conhecidos outros perigos do produto."
+
+def extractPhrases(marker, rawText, pattern):
+    parts = re.split(marker, rawText, maxsplit=1)
+    if len(parts) > 1:
+        found = re.findall(pattern, parts[1])
+        if found:
+            joined = "\n".join([f.strip().rstrip('.') + ";" for f in found])
+            return translateText(joined)
+    return DEFAULT_TEXT
+
+def extractGestis(gestisData):
+    if not gestisData or 'REGULATIONS' not in gestisData or not gestisData['REGULATIONS']:
+        return None
+
+    rawText = gestisData['REGULATIONS'][0]['text']
     
-    #cetesb
-    if data['cetesb'] != []:
-        Classfication= data['cetesb'][3][0][0]
-        text = Classfication.replace("Classificação de perigo", "").strip()
-        parts = re.split(r'(?=(Toxicidade|Corrosão|Lesões|Perigoso|Corrosivo))', text)
-        classifications = []
-        buffer = ""
-        for p in parts:
-            if not p.strip():
-                continue
-            if p in ["Toxicidade", "Corrosão", "Lesões", "Perigoso", "Corrosivo"]:
-                if buffer:
-                    classifications.append(buffer.strip())
-                buffer = ''
-            else:
-                buffer += p
-        if buffer:
-            classifications.append(buffer.strip())
-        classifications = [c.replace(",", " -") for c in classifications]
-        Classfication = ";\n".join(classifications[:-1]) + "."
+    classification = ""
+    matchClass = re.search(r'Classification\s+(.*?)\s+Signal Word', rawText, re.DOTALL)
+    if matchClass:
+        cleanText = re.sub(r'H\d{3}\s*', '\n', matchClass.group(1))
+        classification = "\n".join([line.strip().rstrip(';') + ';' for line in cleanText.split('\n') if line.strip()])
+        classification = translateText(classification)
 
-    ClassSystem = '''Norma ABNT-NBR 14725-2023.\nSistema Globalmente Harmonizado para a Classificação e Rotulagem de Produtos Químicos, ONU.'''
-    OtherDangerous = '''Não são conhecidos outros perigos do produto.'''
-    PictoPath = classToPictograms(Classfication)
-    pictoWidth = 4 #inches
-    pictoHeight = 2 #inches
+    matchSignal = re.search(r'Signal Word\s*"?(\w+)"?', rawText)
+    signalWord = translateText(matchSignal.group(1)) if matchSignal else DEFAULT_TEXT
 
-    warningWord = 'Não disponível'
+    hPhrases = extractPhrases(r'H-phrases',rawText , r'(H\d+:.*?\.)')
+    pPhrases = extractPhrases(r'P-phrases',rawText ,r'(P[\d\+]+:.*?\.)')
 
-    if data['gestis']:
-        text = re.search(r'Signal Word\s*"?(\w+)"?', data['gestis']['REGULATIONS'][0]['text'])
-        if text:
-            text = text.group(1)
-            warningWord = translateText(text)
+    return {
+        'classification': classification,
+        'signal_word': signalWord,
+        'h_phrases': hPhrases,
+        'p_phrases': pPhrases
+    }
 
-    if data['cetesb']:
-        text = re.search(r'Palavra de advertência(\w+)', data['cetesb'][3][2][0])
-        if text:
-            text = text.group(1)
-            warningWord = text
+def extractCetesb(cetesbData):
+    if not cetesbData or len(cetesbData) < 4:
+        return None
+    
+    try:
+        dataBlock = cetesbData[3]
+        
+        rawClass = dataBlock[0][0].replace("Classificação de perigo", "").strip()
+     
+        parts = re.split(r'(?=(?:Toxicidade|Corrosão|Lesões|Perigoso|Corrosivo))', rawClass)
+        cleanParts = [p.strip().replace(",", " -") for p in parts if p.strip()]
+        classification = ";\n".join(cleanParts) + "."
 
-    warningPhrases = 'Não disponível'
-    if data['gestis']:
-        hPhrases = re.split(r'H-phrases', data['gestis']['REGULATIONS'][0]['text'], maxsplit=1)
-        if len(hPhrases) > 2:
-            phrases = re.findall(r'(H\d+:.*?\.)', hPhrases[1])
-            formatedPhrases = [f.strip().rstrip('.') + ";\n" for f in phrases]
-            if formatedPhrases:
-                formatedPhrases = "\n".join(formatedPhrases)
-                warningPhrases = translateText(formatedPhrases)
+        rawSignal = dataBlock[2][0]
+        matchSignal = re.search(r'Palavra de advertência(\w+)', rawSignal)
+        signalWord = matchSignal.group(1) if matchSignal else DEFAULT_TEXT
 
-    if data['cetesb']:
-        text = re.sub(r'^Frase\(s\) de perigo', '', data['cetesb'][3][3][0])
-        phrases = re.findall(r'H\d+\s*-\s*[^H]+', text)
-        formatedPhrases = [f.strip() + ";\n" for f in phrases]
-        if formatedPhrases:
-            warningPhrases = formatedPhrases
+        rawH = re.sub(r'^Frase\(s\) de perigo', '', dataBlock[3][0])
+        hPhrasesList = re.findall(r'H\d+\s*-\s*[^H]+', rawH)
+        hPhrases = "\n".join([f.strip() + ";" for f in hPhrasesList]) if hPhrasesList else DEFAULT_TEXT
 
-    worryPhrases ='Não disponível'
-    if data['gestis']:
-        pPhrases = re.split(r'P-phrases', data['gestis']['REGULATIONS'][0]['text'], maxsplit=1)
-        if len(hPhrases) > 2:
-            phrases = re.findall(r'(P[\d\+]+:.*?\.)', pPhrases[1])
-            formatedPhrases = [f.strip().rstrip('.') + ";\n" for f in phrases]
-            if formatedPhrases:
-                formatedPhrases = "\n".join(formatedPhrases)
-                worryPhrases = translateText(formatedPhrases)
+        rawP = re.sub(r'^Frase\(s\) de precaução.*?\)', '', dataBlock[4][0])
+        pPhrasesList = re.findall(r'(P[\d\+ ]+-.*?\.)', rawP)
+        pPhrases = "\n".join([f.strip().rstrip('.') + ";" for f in pPhrasesList]) if pPhrasesList else DEFAULT_TEXT
 
-    if data['cetesb']:
-        pPhrases = re.sub(r'^Frase\(s\) de precaução.*?\)', '', data['cetesb'][3][4][0])
-        phrases = re.findall(r'(P[\d\+ ]+-.*?\.)', pPhrases)
-        formatedPhrases = [f.strip().rstrip('.') + ";\n" for f in phrases]
-        if formatedPhrases:
-            worryPhrases = "\n".join(formatedPhrases)
+        return {
+            'classification': classification,
+            'signal_word': signalWord,
+            'h_phrases': hPhrases,
+            'p_phrases': pPhrases
+        }
 
-    return Classfication,ClassSystem,OtherDangerous,PictoPath,pictoWidth,pictoHeight,warningWord,warningPhrases,worryPhrases
+    except (IndexError, AttributeError):
+        return None
 
-def generate(Document,data:dict):
-    Classfication,ClassSystem,OtherDangerous,PictoPath,pictoWidth,pictoHeight,warningWord,warningPhrases,worryPhrases = infoGet(data)
-    mkSec2(Document,Classfication,ClassSystem,OtherDangerous,PictoPath,pictoWidth,pictoHeight,warningWord,warningPhrases,worryPhrases)
+def infoGet(data:dict):
+    cetesbResult = extractCetesb(data.get('cetesb'))
+    gestisResult = extractGestis(data.get('gestis'))
+
+    finalData = cetesbResult or gestisResult or {}
+
+    Classification = finalData.get('classification', DEFAULT_CLASS)
+    if not Classification: Classification = DEFAULT_CLASS
+    PictoPath = classToPictograms(Classification)
+
+    warningWord = finalData.get('signal_word',DEFAULT_TEXT)
+    warningPhrases = finalData.get('h_phrases',DEFAULT_TEXT)
+    worryPhrases = finalData.get('p_phrases',DEFAULT_TEXT)
+
+    return secTwoInfo(
+            Classification = Classification,
+            ClassSystem = CLASS_SYSTEM,
+            OtherDangerous = OTHER_DANGEROUS,
+            PictoPath = PictoPath,
+            pictoWidth = 4,
+            pictoHeight = 2,
+            warningWord = warningWord,
+            warningPhrases = warningPhrases,
+            worryPhrases = worryPhrases)
+
+def generate(Document,info:secTwoInfo):
+    
+    mkSec2(Document,info.Classification,info.ClassSystem,info.OtherDangerous,info.PictoPath,info.pictoWidth,info.pictoHeight,info.warningWord,info.warningPhrases,info.worryPhrases)

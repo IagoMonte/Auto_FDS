@@ -1,6 +1,12 @@
 from utils.translator import translateText
-import utils.sections.sec1 as sc1
 from utils.docxFormater.easySections import mkSec3
+from dataclasses import dataclass
+
+@dataclass
+class secThreeInfo:
+    subOrMix:str
+    synonym:str
+    impure:str
 
 def infoGet(data:dict):
     subOrMix = 'SUBSTÂNCIA'#Always
@@ -16,10 +22,9 @@ def infoGet(data:dict):
     if data['cetesb']:
         synonym = data['cetesb'][1][0][0][9::]
         
-    return subOrMix,synonym,impure
-    
+    return secThreeInfo(subOrMix = subOrMix,
+                        synonym  = synonym,
+                        impure   = impure)
 
-def generate(Document,data:dict):
-    subOrMix,synonym,impure = infoGet(data)
-    mkSec3(Document,subOrMix,sc1.infoGet(data)[0],synonym,data['CAS'],impure)
-    pass
+def generate(Document,info:secThreeInfo,productName,cas):
+    mkSec3(Document,info.subOrMix,productName,info.synonym,cas,info.impure)
