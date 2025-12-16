@@ -13,7 +13,7 @@ DEFAULTS = {
 }
 
 @dataclass
-class secFourInfo:
+class sec4Info:
     inhalation : str
     skin : str
     eyes : str
@@ -73,7 +73,7 @@ def extractIcsc(icscData, index):
 
 
 
-def infoGet(data: dict) -> secFourInfo:
+def infoGet(data: dict) -> sec4Info:
     gestisInfo = extractGestis(data.get('gestis'))
     
     fieldMap = {
@@ -113,7 +113,7 @@ def infoGet(data: dict) -> secFourInfo:
         if parts:
             afterVal = "\n".join(parts)
 
-    return secFourInfo(
+    return sec4Info(
         inhalation=finalValues['inhalation'],
         skin=finalValues['skin'],
         eyes=finalValues['eyes'],
@@ -122,5 +122,5 @@ def infoGet(data: dict) -> secFourInfo:
         doctor=DEFAULTS['doctor']
     )
 
-def generate(Document,info:secFourInfo):
+def generate(Document,info:sec4Info):
     mkSec4(Document, info.inhalation,info.skin,info.eyes,info.intake,info.after,info.doctor)

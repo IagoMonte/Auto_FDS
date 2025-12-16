@@ -5,7 +5,7 @@ from dataclasses import dataclass
 import re
 
 @dataclass
-class secTwoInfo:
+class sec2Info:
     Classification: str
     ClassSystem:str
     OtherDangerous:str
@@ -106,7 +106,7 @@ def infoGet(data:dict):
     warningPhrases = finalData.get('h_phrases',DEFAULT_TEXT)
     worryPhrases = finalData.get('p_phrases',DEFAULT_TEXT)
 
-    return secTwoInfo(
+    return sec2Info(
             Classification = Classification,
             ClassSystem = CLASS_SYSTEM,
             OtherDangerous = OTHER_DANGEROUS,
@@ -117,6 +117,6 @@ def infoGet(data:dict):
             warningPhrases = warningPhrases,
             worryPhrases = worryPhrases)
 
-def generate(Document,info:secTwoInfo):
+def generate(Document,info:sec2Info):
     
     mkSec2(Document,info.Classification,info.ClassSystem,info.OtherDangerous,info.PictoPath,info.pictoWidth,info.pictoHeight,info.warningWord,info.warningPhrases,info.worryPhrases)

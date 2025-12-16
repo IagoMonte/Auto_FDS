@@ -3,7 +3,7 @@ from utils.docxFormater.easySections import mkSec3
 from dataclasses import dataclass
 
 @dataclass
-class secThreeInfo:
+class sec3Info:
     subOrMix:str
     synonym:str
     impure:str
@@ -22,9 +22,9 @@ def infoGet(data:dict):
     if data['cetesb']:
         synonym = data['cetesb'][1][0][0][9::]
         
-    return secThreeInfo(subOrMix = subOrMix,
+    return sec3Info(subOrMix = subOrMix,
                         synonym  = synonym,
                         impure   = impure)
 
-def generate(Document,info:secThreeInfo,productName,cas):
+def generate(Document,info:sec3Info,productName,cas):
     mkSec3(Document,info.subOrMix,productName,info.synonym,cas,info.impure)

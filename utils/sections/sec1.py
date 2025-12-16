@@ -4,13 +4,13 @@ from dataclasses import dataclass
 import re
 
 @dataclass
-class secOneInfo:
+class sec1Info:
     ProductName : str
     Uses: str    
     ProviderInfo: str
     Emergency: str
 
-def infoGet(data: str) ->secOneInfo:
+def infoGet(data: str) ->sec1Info:
     ProductName = 'Não disponível'
     ProviderInfo ='''
     PORTUGAL QUÍMICA LTDA.
@@ -46,12 +46,12 @@ def infoGet(data: str) ->secOneInfo:
     if data['cetesb'] != []:
         Uses = data['cetesb'][1][3][0][4::]
     
-    return secOneInfo(
+    return sec1Info(
         ProductName = ProductName,
         Uses = Uses,
         ProviderInfo = ProviderInfo,
         Emergency = Emergency
     )
 
-def generate(Document,info:secOneInfo):
+def generate(Document,info:sec1Info):
     mkSec1(Document, info.ProductName, info.Uses, info.ProviderInfo, info.Emergency)

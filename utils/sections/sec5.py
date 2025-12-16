@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import re
 
 @dataclass
-class secFiveInfo:
+class sec5Info:
     extinction: str
     esp_dangerous: str
     firefighters: str
@@ -27,7 +27,7 @@ def getGestisRegex(pattern, fire_fighting_text = ''):
         return translateText(content) if content else None
     return None
 
-def infoGet(data:dict) -> secFiveInfo:
+def infoGet(data:dict) -> sec5Info:
     gestis_handling = data.get('gestis', {}).get('SAFE HANDLING', [])
     fire_fighting_text = next(
         (item.get('text', '') for item in gestis_handling if item.get('text', '').startswith('FIRE FIGHTING MEASURES')), 
@@ -50,8 +50,8 @@ def infoGet(data:dict) -> secFiveInfo:
         'Não disponível'
     )
     
-    return  secFiveInfo(extinction      = extinction,
+    return  sec5Info(extinction      = extinction,
                         esp_dangerous   = esp_dangerous,
                         firefighters    = firefighters)
-def generate(Document,info:secFiveInfo):
+def generate(Document,info:sec5Info):
     mkSec5(Document,info.extinction,info.EspDangerous,info.firefighters)
