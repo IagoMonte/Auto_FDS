@@ -1,36 +1,34 @@
-from utils.translator import translateText
 from utils.docxFormater.easySections import mkSec9
+from utils.translator import translateText
 from dataclasses import dataclass
 from bs4 import BeautifulSoup
 import re
 
-DEFAULT_VALUE = "Não disponível"
+DEFAULT = "Não disponível"
 
 @dataclass
 class sec9Info:
-    physical_state: str
+    physicalState: str
     color: str
     odor: str
-    melting_point: str
-    boiling_point: str
+    meltingPoint: str
+    boilingPoint: str
     flammability: str
-    explosive_limit: str
-    flash_point: str
-    auto_ignition_temperature: str
-    decomposition_temperature: str
+    explosiveLimit: str
+    flashPoint: str
+    autoIgnitionTemperature: str
+    decompositionTemperature: str
     pH: str
-    kinematic_viscosity: str
-    water_solubility: str
-    partition_coefficient: str
-    vapor_pressure: str
-    relative_density: str
-    relative_vapor_density: str
-    particle_characteristics: str
-    other_info: str
+    kinematicViscosity: str
+    waterSolubility: str
+    partitionCoefficient: str
+    vaporPressure: str
+    relativeDensity: str
+    relativeVaporDensity: str
+    particleCharacteristics: str
+    otherInfo: str
 
-# --- Helper: Normalização de Entradas ---
-def _normalize_inputs(entradas):
-    """Converte diferentes formatos (dict, HTML, list, números) em texto unificado."""
+def normalizeInputs(entradas):
     textos = []
     
     for e in entradas:
@@ -52,58 +50,47 @@ def _normalize_inputs(entradas):
     
     return textos, " ".join(textos)
 
-# --- Helper: Extração de Melting/Boiling Points com Pureza ---
-def _extract_temperature_with_purity(text, temp_type):
-    """
-    Extrai temperaturas (melting/boiling) considerando pureza.
-    Prioriza: pureza 100% > maior pureza > menor/maior valor (depende do tipo).
-    """
-    if temp_type == "melting":
+def extractTemperatureWithPurity(text, tempType):
+    if tempType == "melting":
         pattern = r"Melting point:\s*([\-\d,\.]+)\s*°C(?:.*?(\d+)\s*%)?"
-        sort_key = lambda x: (-(int(x[1]) if x[1] else 0), x[0])  # Menor valor
-    elif temp_type == "boiling":
+        sortKey = lambda x: (-(int(x[1]) if x[1] else 0), x[0])  # Menor valor
+    elif tempType == "boiling":
         pattern = r"Boiling Point:\s*(?:ca\.\s*)?([\-\d,\.]+)\s*°C(?:.*?(\d+)\s*%)?"
-        sort_key = lambda x: (-(int(x[1]) if x[1] else 0), -x[0])  # Maior valor
+        sortKey = lambda x: (-(int(x[1]) if x[1] else 0), -x[0])  # Maior valor
     else:
-        return DEFAULT_VALUE
+        return DEFAULT
     
     matches = re.findall(pattern, text, flags=re.I)
     values = []
     
     for val, purity in matches:
         try:
-            val_num = float(val.replace(",", "."))
-            values.append((val_num, purity if purity else None))
+            valNum = float(val.replace(",", "."))
+            values.append((valNum, purity if purity else None))
         except ValueError:
             continue
     
     if not values:
-        return DEFAULT_VALUE
+        return DEFAULT
     
-    values.sort(key=sort_key)
+    values.sort(key=sortKey)
     chosen = values[0]
     return f"{chosen[0]} °C" + (f" ({chosen[1]}%)" if chosen[1] else "")
 
-# --- Helper: Extração por Regex com Padrões Dinâmicos ---
-def _extract_by_regex(text, pattern):
-    """Aplica regex e retorna o primeiro grupo capturado ou valor padrão."""
+def extractByRegex(text, pattern):
     match = re.search(pattern, text, flags=re.IGNORECASE)
     if match and match.group(1):
         return match.group(1).strip()
-    return DEFAULT_VALUE
+    return DEFAULT
 
-# --- Helper: Detecção de Inflamabilidade ---
-def _detect_flammability(text):
-    """Detecta inflamabilidade de forma semântica."""
+def detectFlammability(text):
     if re.search(r"non-?combustible|não inflamável|not flammable", text, flags=re.IGNORECASE):
         return "Não inflamável"
     elif re.search(r"flammable|inflamável|combustible", text, flags=re.IGNORECASE):
         return "Inflamável"
-    return DEFAULT_VALUE
+    return DEFAULT
 
-# --- Helper: Extração de Informações Adicionais ---
-def _extract_other_info(textos):
-    """Extrai linhas com palavras-chave relevantes para OtherInfo."""
+def extractOtherInfo(textos):
     keywords = [
         "viscous", "viscoso", "hygroscopic", "higroscópico", "deliquescent", 
         "oxidizing", "oxidante", "reducing", "redutor", "corrosive", "corrosivo",
@@ -122,26 +109,18 @@ def _extract_other_info(textos):
         if any(kw in linha.lower() for kw in keywords):
             extras.append(linha.strip())
     
-    return "\n".join(set(extras)) if extras else DEFAULT_VALUE
+    return "\n".join(set(extras)) if extras else DEFAULT
 
-# --- Função Principal de Extração ---
 def infoGet(data: dict) -> sec9Info:
-    """
-    Extrai propriedades físico-químicas de múltiplas fontes.
-    Fontes: CETESB, ICSC, Gestis
-    """
     
-    # 1. Coleta de Dados das Fontes
     entrada1 = data.get('cetesb', [])[7] if data.get('cetesb') and len(data['cetesb']) > 7 else []
     entrada2 = data.get('icsc', {}).get('td_list', [])[32] if data.get('icsc') and 'td_list' in data['icsc'] and len(data['icsc']['td_list']) > 32 else []
     entrada3 = data.get('gestis', {}).get('CHARACTERISATION', []) if data.get('gestis') else []
     entrada4 = data.get('gestis', {}).get('PHYSICAL AND CHEMICAL PROPERTIES', []) if data.get('gestis') else []
     
-    # 2. Normalização
-    textos, texto_total = _normalize_inputs([entrada1, entrada2, entrada3, entrada4])
+    textos, textoTotal = normalizeInputs([entrada1, entrada2, entrada3, entrada4])
     
-    # 3. Extração com Regex (Padrões Dinâmicos)
-    regex_patterns = {
+    regexPatterns = {
         "relative_density": r"(?:Density|Densidade|Specific gravity|Gravidade espec[ií]fica|Rel\.? density)\s*[:\-]?\s*([>\-]?\s*[\d.,]+\s*(?:g/(?:cm³|ml)|kg/l|a\s*\d+\s*°C)?)",
         "vapor_pressure": r"(?:Vapou?r pressure|Press[aã]o do vapor|Tensi[oã]o de vapor)\s*[:\-]?\s*([>\-]?\s*[\d.,]+\s*(?:Pa|hPa|kPa|mmHg|bar)?(?:\s*@ ?\d+ ?°C)?|negligible|atmospheric)",
         "water_solubility": r"(?:Solubility.*?water|Solubilidade na [aá]gua|Mixable)\s*[:\-]?\s*(miscible|immiscible|insoluble|[\d.,]+\s*g/(?:l|100ml))",
@@ -157,67 +136,47 @@ def infoGet(data: dict) -> sec9Info:
         "auto_ignition_temperature": r"(?:Auto-?ignition temperature|Temperatura de autoigni[cç][aã]o)\s*[:\-]?\s*([>\-]?\s*[\d.,]+\s*°C)"
     }
     
-    # Aplica regex para cada campo
     extracted = {}
-    for field, pattern in regex_patterns.items():
-        extracted[field] = _extract_by_regex(texto_total, pattern)
+    for field, pattern in regexPatterns.items():
+        extracted[field] = extractByRegex(textoTotal, pattern)
     
-    # 4. Tratamento Especial: Melting/Boiling Points
-    melting_point = _extract_temperature_with_purity(texto_total, "melting")
-    boiling_point = _extract_temperature_with_purity(texto_total, "boiling")
+    meltingPoint = extractTemperatureWithPurity(textoTotal, "melting")
+    boilingPoint = extractTemperatureWithPurity(textoTotal, "boiling")
     
-    # 5. Inflamabilidade
-    flammability = _detect_flammability(texto_total)
+    flammability = detectFlammability(textoTotal)
     
-    # 6. Limites Explosivos (placeholder - não havia extração no código original)
-    explosive_limit = DEFAULT_VALUE
+    explosiveLimit = DEFAULT
     
-    # 7. Outras Informações
-    other_info = _extract_other_info(textos)
+    otherInfo = extractOtherInfo(textos)
     
-    # 8. Tradução dos Campos Necessários
     return sec9Info(
-        physical_state=translateText(extracted["physical_state"]),
+        physicalState=translateText(extracted["physical_state"]),
         color=translateText(extracted["color"]),
         odor=translateText(extracted["odor"]),
-        melting_point=melting_point,
-        boiling_point=boiling_point,
+        meltingPoint=meltingPoint,
+        boilingPoint=boilingPoint,
         flammability=flammability,
-        explosive_limit=explosive_limit,
-        flash_point=extracted["flash_point"],
-        auto_ignition_temperature=extracted["auto_ignition_temperature"],
-        decomposition_temperature=extracted["decomposition_temperature"],
+        explosiveLimit=explosiveLimit,
+        flashPoint=extracted["flash_point"],
+        autoIgnitionTemperature=extracted["auto_ignition_temperature"],
+        decompositionTemperature=extracted["decomposition_temperature"],
         pH=extracted["pH"],
-        kinematic_viscosity=extracted["kinematic_viscosity"],
-        water_solubility=extracted["water_solubility"],
-        partition_coefficient=extracted["partition_coefficient"],
-        vapor_pressure=extracted["vapor_pressure"],
-        relative_density=extracted["relative_density"],
-        relative_vapor_density=extracted["relative_vapor_density"],
-        particle_characteristics=DEFAULT_VALUE,
-        other_info=translateText(other_info)
+        kinematicViscosity=extracted["kinematic_viscosity"],
+        waterSolubility=extracted["water_solubility"],
+        partitionCoefficient=extracted["partition_coefficient"],
+        vaporPressure=extracted["vapor_pressure"],
+        relativeDensity=extracted["relative_density"],
+        relativeVaporDensity=extracted["relative_vapor_density"],
+        particleCharacteristics=DEFAULT,
+        otherInfo=translateText(otherInfo)
     )
 
 def generate(document, info: sec9Info):
     mkSec9(
         document,
-        info.physical_state,
-        info.color,
-        info.odor,
-        info.melting_point,
-        info.boiling_point,
-        info.flammability,
-        info.explosive_limit,
-        info.flash_point,
-        info.auto_ignition_temperature,
-        info.decomposition_temperature,
-        info.pH,
-        info.kinematic_viscosity,
-        info.water_solubility,
-        info.partition_coefficient,
-        info.vapor_pressure,
-        info.relative_density,
-        info.relative_vapor_density,
-        info.particle_characteristics,
-        info.other_info
+        info.physicalState,info.color,info.odor,info.meltingPoint,info.boilingPoint,
+        info.flammability,info.explosiveLimit,info.flashPoint,info.autoIgnitionTemperature,
+        info.decompositionTemperature,info.pH,info.kinematicViscosity,info.waterSolubility,
+        info.partitionCoefficient,info.vaporPressure,info.relativeDensity,info.relativeVaporDensity,
+        info.particleCharacteristics,info.otherInfo
     )
